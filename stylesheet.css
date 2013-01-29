@@ -1,0 +1,175 @@
+.translator-panel-button {
+    background-color: #ccc;
+    color: black;
+    padding: 0px 4px 0px 4px;
+    border-radius: 8px;
+    font-size: 13px;
+    transition-duration: 300;
+}
+
+.translator-panel-button:hover {
+    transition-duration: 300;
+    background-color: white;
+}
+
+.translator-box {
+    background-color: rgba(0, 0, 0, 0.9);
+    width: 1200px;
+    height: 400px;
+    padding: 15px;
+}
+
+.translator-entry {
+    caret-color: rgb(255, 0, 0);
+    caret-size: 2px;
+    selected-color: black;
+    padding: 5px;
+}
+
+.translator-source-text-box {
+    font-size: 15px;
+    width: 590px;
+    height: 300px;
+    background-color: rgba(0, 0, 0, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.translator-target-text-box {
+    font-size: 15px;
+    width: 590px;
+    height: 300px;
+    background-color: rgba(255, 255, 255, 0.3);
+}
+
+.translator-statusbar-box {
+    padding: 3px;
+    font-size: 18px;
+    color: rgba(150, 150, 150, 1);
+    /*border: 1px solid rgba(64, 64, 64, 0.5);*/
+}
+
+.translator-buttons-bar-box {
+    padding: 3px;
+}
+
+.translator-buttons-bar-icon {
+    icon-size: 24px;
+}
+
+.translator-top-bar-box {
+    padding: 10px;
+}
+
+.tranlator-top-bar-button {
+    font-size: 25px;
+    font-weight: bold;
+}
+
+.tranlator-top-bar-button-reactive {
+    font-size: 25px;
+    font-weight: bold;
+}
+
+.tranlator-top-bar-button-reactive:hover {
+    background-color: rgba(64, 64, 64, 0.5);
+}
+
+.tranlator-top-bar-button-reactive:active {
+    background-color: rgba(64, 64, 64, 0.9);
+}
+
+.tranlator-top-bar-go-button {
+    padding-left: 5px;
+    padding-right: 5px;
+    font-size: 20px;
+    font-weight: bold;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    background-color: rgba(64, 64, 200, 1);
+}
+
+.tranlator-top-bar-go-button:hover {
+    background-color: rgba(64, 64, 255, 1);
+}
+
+.tranlator-top-bar-go-button:active {
+    background-color: rgba(0, 0, 255, 1);
+}
+
+.translator-bottom-button {
+    padding-right: 4px;
+    padding-top: 2px;
+    color: rgba(64, 64, 64, 1);
+}
+
+.translator-bottom-button:hover {
+    color: rgba(255, 64, 64, 1);
+}
+
+.translator-bottom-button:active {
+    color: rgba(255, 0, 0, 1);
+}
+
+.translator-bottom-toggle-button {
+    padding-right: 4px;
+    padding-top: 2px;
+    color: rgba(64, 64, 64, 1);
+}
+
+.translator-bottom-toggle-button:hover {
+    color: rgba(64, 255, 64, 1);
+}
+
+.translator-bottom-toggle-button:active {
+    color: rgba(0, 255, 0, 1);
+}
+
+.translator-language-chooser {
+    width: 850px;
+    height: 400px;
+    background-color: rgba(255, 255, 255, 0.8);
+    padding: 10px;
+}
+
+.translator-language-chooser-box {
+    border: 1px solid rgba(64, 64, 64, 0.5);
+    width: 800px;
+    height: 350px;
+}
+
+.translator-language-chooser-title {
+    color: black;
+    font-size: 20px;
+    font-weight: bold;
+    padding: 5px;
+}
+
+.translator-language-chooser-button {
+    padding: 3px;
+    font-size: 18px;
+    color: black;
+}
+
+.translator-language-chooser-button:hover {
+    background-color: rgba(64, 64, 64, 0.3);
+}
+
+.translator-language-chooser-button:active {
+    font-weight: bold;
+    font-size: 16px;
+    background-color: rgba(64, 64, 64, 0.3);
+}
+
+.translator-chars-counter-box {
+    font-size: 13px;
+    padding: 5px;
+}
+
+.translator-chars-counter-text {
+    /* nothing */
+}
+
+.translator-help-box {
+    width: 500px;
+    height: 400px;
+    background-color: rgba(255, 255, 255, 0.7);
+}

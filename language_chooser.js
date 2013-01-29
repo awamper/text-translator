@@ -1,0 +1,155 @@
+const St = imports.gi.St;
+const Lang = imports.lang;
+const ModalDialog = imports.ui.modalDialog;
+const Clutter = imports.gi.Clutter;
+const Signals = imports.signals;
+const ExtensionUtils = imports.misc.extensionUtils;
+
+const Me = ExtensionUtils.getCurrentExtension();
+const Utils = Me.imports.utils;
+
+const COLUMNS = 4;
+
+const LanguageChooser = new Lang.Class({
+    Name: 'LanguageChooser',
+    Extends: ModalDialog.ModalDialog,
+
+    _init: function(title, languages) {
+        this.parent();
+
+        this._dialogLayout = 
+            typeof this.dialogLayout === "undefined"
+            ? this._dialogLayout
+            : this.dialogLayout;
+        this._dialogLayout.connect('key-press-event', Lang.bind(this,
+            this._on_key_press_event
+        ));
+        this._dialogLayout.set_style_class_name('translator-language-chooser');
+
+        this._languages_table = new St.Table();
+
+        this._box = new St.BoxLayout({
+            vertical: true
+        });
+        this._box.add_actor(this._languages_table);
+
+        this._scroll = new St.ScrollView({
+            style_class: 'translator-language-chooser-box'
+        });
+        this._scroll.add_actor(this._box);
+
+        this._title = new St.Label({
+            text: title,
+            style_class: 'translator-language-chooser-title'
+        });
+
+        this._close_button = this._get_close_button();
+
+        this._table = new St.Table({
+            homogeneous: false
+        });
+        this._table.add(this._title, {
+            row: 0,
+            col: 0
+        });
+        this._table.add(this._close_button, {
+            row: 0,
+            col: 1,
+            x_fill: false,
+            x_align: St.Align.END
+        });
+        this._table.add(this._scroll, {
+            row: 1,
+            col: 0,
+            col_span: 2
+        });
+
+        this.set_languages(languages);
+
+        this.contentLayout.add_actor(this._table);
+    },
+
+    _on_key_press_event: function(object, event) {
+        let symbol = event.get_key_symbol();
+
+        if(symbol == Clutter.Escape) {
+            this.close();
+        }
+    },
+
+    _get_close_button: function() {
+        let icon = new St.Icon({
+            icon_name: Utils.ICONS.close,
+            icon_size: 20,
+            style: 'color: grey;'
+        });
+
+        let button = new St.Button({
+            reactive: true
+        });
+        button.connect('clicked', Lang.bind(this, function() {
+            this.close();
+        }));
+        button.add_actor(icon);
+
+        return button;
+    },
+
+    _get_button: function(lang_code, lang_name) {
+        let button = new St.Button({
+            label: '%s'.format(lang_name),
+            track_hover: true,
+            reactive: true,
+            style_class: 'translator-language-chooser-button'
+        });
+        button.connect('clicked', Lang.bind(this, function() {
+            this.emit('language-chose', {
+                code: lang_code,
+                name: lang_name
+            });
+        }));
+        button.lang_code = lang_code;
+        button.lang_name = lang_name;
+
+        return button;
+    },
+
+    show_languages: function(selected_language_code) {
+        let row = 0;
+        let column = 0;
+
+        for(let code in this._languages) {
+            let button = this._get_button(code, this._languages[code]);
+
+            if(button.lang_code === selected_language_code) {
+                button.add_style_pseudo_class('active');
+                button.set_reactive(false);
+            }
+
+            this._languages_table.add(button, {
+                row: row,
+                col: column,
+                x_fill: false,
+                x_align: St.Align.START
+            });
+
+            if(column === (COLUMNS - 1)) {
+                column = 0;
+                row++
+            }
+            else {
+                column++;
+            }
+        }
+    },
+
+    set_languages: function(languages) {
+        this._languages = languages;
+    },
+
+    close: function() {
+        this._languages_table.destroy_all_children();
+        this.parent();
+    },
+});
+Signals.addSignalMethods(LanguageChooser.prototype);

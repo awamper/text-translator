@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist gettext-domain="gnome-shell-extensions">
+
+  <schema path="/org/gnome/shell/extensions/text-translator/" id="org.gnome.shell.extensions.text-translator">
+
+    <key type="as" name="open-translator-dialog-keybinding">
+        <default><![CDATA[['<Super>T']]]></default>
+    </key>
+
+    <key type="as" name="translate-from-clipboard-keybinding">
+        <default><![CDATA[['<Super><Shift>T']]]></default>
+    </key>
+
+    <key type="as" name="translate-from-selection-keybinding">
+        <default><![CDATA[['<Super><Alt>T']]]></default>
+    </key>
+
+    <key type="s" name="default-translator">
+	    <default>'Google.Translate'</default>
+    </key>
+
+    <key type="s" name="translators-prefs">
+	    <default>
+        '
+        {
+           "Google.Translate":{
+              "default_source":"en",
+              "default_target":"ru",
+              "last_source":"",
+              "last_target":"",
+              "remember_last_used": false
+           },
+           "Yandex.Translate":{
+              "default_source":"ru",
+              "default_target":"fr",
+              "last_source":"",
+              "last_target":"",
+              "remember_last_used": true
+           }
+        }
+        '
+        </default>
+    </key>
+
+    <key type="b" name="enable-instant-translation">
+        <default>true</default>
+    </key>
+
+    <key type="b" name="show-icon">
+        <default>true</default>
+    </key>
+
+    <key type="b" name="sync-entries-scrolling">
+        <default>true</default>
+    </key>
+
+  </schema>
+</schemalist>

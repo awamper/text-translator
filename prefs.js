@@ -1,0 +1,627 @@
+const Lang = imports.lang;
+const GObject = imports.gi.GObject;
+const Gtk = imports.gi.Gtk;
+const Gio = imports.gi.Gio;
+const Params = imports.misc.params;
+const ExtensionUtils = imports.misc.extensionUtils;
+
+const Me = ExtensionUtils.getCurrentExtension();
+const Utils = Me.imports.utils;
+const PrefsKeys = Me.imports.prefs_keys;
+const TranslatorsManager = Me.imports.translators_manager;
+
+ExtensionUtils.get_text_translator_extension = function() {
+    return Me;
+}
+
+const TranslatorProvidersWidget = new GObject.Class({
+    Name: 'Translator.Providers.Widget',
+    GTypeName: 'TranslatorProvidersWidget',
+    Extends: Gtk.Grid,
+
+    _init: function() {
+        this.parent();
+        this.set_orientation(Gtk.Orientation.VERTICAL);
+        this.margin = this.row_spacing = this.column_spacing = 10;
+
+        this._translators_manager = new TranslatorsManager.TranslatorsManager();
+        let names = this._translators_manager.translators_names;
+
+        this.POSITIONS = {
+            translators: {col: 0, row: 0, colspan: 2, rowspan: 1},
+            default_source_label: {col: 0, row: 1, colspan: 1, rowspan: 1},
+            default_source: {col: 1, row: 1, colspan: 1, rowspan: 1},
+            default_target_label: {col: 0, row: 2, colspan: 1, rowspan: 1},
+            default_target: {col: 1, row: 2, colspan: 1, rowspan: 1},
+            last_used_label: {col: 0, row: 3, colspan: 1, rowspan: 1},
+            last_used: {col: 1, row: 3, colspan: 1, rowspan: 1}
+        };
+
+        // translators
+        this._translators_combo = this._get_combo(names, 0);
+        this._translators_combo.set_active_id(names[0]);
+        this._translators_combo.connect('changed',
+            Lang.bind(this, function(combo) {
+                let name = combo.get_active_id();
+                this._show_settings(name);
+            })
+        );
+        this.attach( // col, row, colspan, rowspan
+            this._translators_combo,
+            this.POSITIONS.translators.col,
+            this.POSITIONS.translators.row,
+            this.POSITIONS.translators.colspan,
+            this.POSITIONS.translators.rowspan
+        );
+
+        // default source
+        this._source_languages_combo = this._get_combo([]);
+        let label = new Gtk.Label({
+            label: 'Default source language:',
+            hexpand: true,
+            halign: Gtk.Align.START
+        });
+        this.attach(
+            label,
+            this.POSITIONS.default_source_label.col,
+            this.POSITIONS.default_source_label.row,
+            this.POSITIONS.default_source_label.colspan,
+            this.POSITIONS.default_source_label.rowspan
+        );
+
+        // default target
+        this._target_languages_combo = this._get_combo([]);
+        label = new Gtk.Label({
+            label: 'Default target language:',
+            hexpand: true,
+            halign: Gtk.Align.START
+        });
+        this.attach(
+            label,
+            this.POSITIONS.default_target_label.col,
+            this.POSITIONS.default_target_label.row,
+            this.POSITIONS.default_target_label.colspan,
+            this.POSITIONS.default_target_label.rowspan
+        );
+
+        // remember last used
+        label = new Gtk.Label({
+            label: 'Remember the last used languages:',
+            hexpand: true,
+            halign: Gtk.Align.START
+        });
+        this.attach(
+            label,
+            this.POSITIONS.last_used_label.col,
+            this.POSITIONS.last_used_label.row,
+            this.POSITIONS.last_used_label.colspan,
+            this.POSITIONS.last_used_label.rowspan
+        );
+        this._last_used = new Gtk.Switch({
+            active: false
+        });
+        this._last_used.connect('notify::active', Lang.bind(this, function(s) {
+            let active = s.get_active();
+            let name = this._translators_combo.get_active_id();
+            let translator = this._translators_manager.get_by_name(name);
+            translator.remember_last_used = active;
+        }));
+        this.attach(
+            this._last_used,
+            this.POSITIONS.last_used.col,
+            this.POSITIONS.last_used.row,
+            this.POSITIONS.last_used.colspan,
+            this.POSITIONS.last_used.rowspan
+        );
+
+        this._show_settings(names[0]);
+    },
+
+    _get_combo: function(items) {
+        let combo_box = new Gtk.ComboBoxText();
+
+        for(let i = 0; i < items.length; i++) {
+            combo_box.insert(-1, items[i], items[i]);
+        }
+
+        return combo_box;
+    },
+
+    _load_default_source: function(languages, active_id) {
+        let old = this.get_child_at(
+            this.POSITIONS.default_source.col,
+            this.POSITIONS.default_source.row
+        );
+
+        if(old) old.destroy();
+
+        this._source_languages_combo = new Gtk.ComboBoxText();
+        this._source_languages_combo.connect('changed',
+            Lang.bind(this, function(combo) {
+                let name = this._translators_combo.get_active_id();
+                let translator = this._translators_manager.get_by_name(name);
+                let lang_code = combo.get_active_id();
+
+                if(!translator || translator.default_source == lang_code) return;
+
+                translator.default_source = lang_code;
+                let languages = translator.get_pairs(lang_code);
+                let active_id = -1;
+
+                if(languages[translator.default_target] != undefined) {
+                    active_id = translator.default_target;
+                }
+
+                this._load_default_target(languages, active_id);
+            })
+        );
+
+        for(let key in languages) {
+            this._source_languages_combo.insert(-1, key, languages[key])
+        }
+
+        if(active_id === -1) {
+            active_id = Object.keys(languages)[0];
+        }
+
+        this._source_languages_combo.set_active_id(active_id);
+
+        let source_wrap_width = Math.round(Object.keys(languages).length / 17);
+
+        if(source_wrap_width > 1) {
+            this._source_languages_combo.set_wrap_width(source_wrap_width);
+        }
+
+        this._source_languages_combo.show();
+
+        this.attach(
+            this._source_languages_combo,
+            this.POSITIONS.default_source.col,
+            this.POSITIONS.default_source.row,
+            this.POSITIONS.default_source.colspan,
+            this.POSITIONS.default_source.rowspan
+        );
+    },
+
+    _load_default_target: function(languages, active_id) {
+        let old = this.get_child_at(
+            this.POSITIONS.default_target.col,
+            this.POSITIONS.default_target.row
+        );
+
+        if(old) old.destroy();
+
+        this._target_languages_combo = new Gtk.ComboBoxText();
+        this._target_languages_combo.connect('changed',
+            Lang.bind(this, function(combo) {
+                let name = this._translators_combo.get_active_id();
+                let translator = this._translators_manager.get_by_name(name);
+                let lang_code = combo.get_active_id();
+
+                if(!translator || translator.default_target == lang_code) return;
+
+                translator.default_target = lang_code;
+            })
+        );
+
+        for(let key in languages) {
+            this._target_languages_combo.insert(-1, key, languages[key])
+        }
+
+        if(active_id === -1) {
+            active_id = Object.keys(languages)[0];
+        }
+
+        this._target_languages_combo.set_active_id(active_id);
+
+        let target_wrap_width = Math.round(Object.keys(languages).length / 17);
+
+        if(target_wrap_width > 1) {
+            this._target_languages_combo.set_wrap_width(target_wrap_width);
+        }
+
+        this._target_languages_combo.show();
+
+        this.attach(
+            this._target_languages_combo,
+            this.POSITIONS.default_target.col,
+            this.POSITIONS.default_target.row,
+            this.POSITIONS.default_target.colspan,
+            this.POSITIONS.default_target.rowspan
+        );
+    },
+
+    _show_settings: function(name) {
+        let translator = this._translators_manager.get_by_name(name);
+
+        let source_langs = translator.get_languages();
+        this._load_default_source(source_langs, translator.default_source);
+
+        let target_langs = translator.get_pairs(translator.default_source);
+        this._load_default_target(target_langs, translator.default_target);
+
+        this._last_used.set_active(translator.remember_last_used);
+    },
+});
+
+const TranslatorKeybindingsWidget = new GObject.Class({
+    Name: 'Translator.Keybindings.Widget',
+    GTypeName: 'TranslatorKeybindingsWidget',
+    Extends: Gtk.Box,
+
+    _init: function(keybindings) {
+        this.parent();
+        this.set_orientation(Gtk.Orientation.VERTICAL);
+
+        this._keybindings = keybindings;
+
+        let scrolled_window = new Gtk.ScrolledWindow();
+        scrolled_window.set_policy(
+            Gtk.PolicyType.AUTOMATIC,
+            Gtk.PolicyType.AUTOMATIC
+        );
+
+        this._columns = {
+            NAME: 0,
+            ACCEL_NAME: 1,
+            MODS: 2,
+            KEY: 3
+        };
+
+        this._store = new Gtk.ListStore();
+        this._store.set_column_types([
+            GObject.TYPE_STRING,
+            GObject.TYPE_STRING,
+            GObject.TYPE_INT,
+            GObject.TYPE_INT
+        ]);
+
+        this._tree_view = new Gtk.TreeView({
+            model: this._store,
+            hexpand: true,
+            vexpand: true
+        });
+        this._tree_view.get_selection().set_mode(Gtk.SelectionMode.SINGLE);
+
+        let action_renderer = new Gtk.CellRendererText();
+        let action_column = new Gtk.TreeViewColumn({
+            'title': 'Action',
+            'expand': true
+        });
+        action_column.pack_start(action_renderer, true);
+        action_column.add_attribute(action_renderer, 'text', 1);
+        this._tree_view.append_column(action_column);
+
+        let keybinding_renderer = new Gtk.CellRendererAccel({
+            'editable': true,
+            'accel-mode': Gtk.CellRendererAccelMode.GTK
+        });
+        keybinding_renderer.connect('accel-edited',
+            Lang.bind(this, function(renderer, iter, key, mods) {
+                let value = Gtk.accelerator_name(key, mods);
+                let [success, iterator ] =
+                    this._store.get_iter_from_string(iter);
+
+                if(!success) {
+                    printerr("Can't change keybinding");
+                }
+
+                let name = this._store.get_value(iterator, 0);
+
+                this._store.set(
+                    iterator,
+                    [this._columns.MODS, this._columns.KEY],
+                    [mods, key]
+                );
+                Utils.SETTINGS.set_strv(name, [value]);
+            })
+        );
+
+        let keybinding_column = new Gtk.TreeViewColumn({
+            'title': 'Modify'
+        });
+        keybinding_column.pack_end(keybinding_renderer, false);
+        keybinding_column.add_attribute(
+            keybinding_renderer,
+            'accel-mods',
+            this._columns.MODS
+        );
+        keybinding_column.add_attribute(
+            keybinding_renderer,
+            'accel-key',
+            this._columns.KEY
+        );
+        this._tree_view.append_column(keybinding_column);
+
+        scrolled_window.add(this._tree_view);
+        this.add(scrolled_window);
+
+        this._refresh();
+    },
+
+    _refresh: function() {
+        this._store.clear();
+
+        for(let settings_key in this._keybindings) {
+            let [key, mods] = Gtk.accelerator_parse(
+                Utils.SETTINGS.get_strv(settings_key)[0]
+            );
+
+            let iter = this._store.append();
+            this._store.set(iter,
+                [
+                    this._columns.NAME,
+                    this._columns.ACCEL_NAME,
+                    this._columns.MODS,
+                    this._columns.KEY
+                ],
+                [
+                    settings_key,
+                    this._keybindings[settings_key],
+                    mods,
+                    key
+                ]
+            );
+        }
+    }
+});
+
+const TranslatorPrefsGrid = new GObject.Class({
+    Name: 'Translator.Prefs.Grid',
+    GTypeName: 'TranslatorPrefsGrid',
+    Extends: Gtk.Grid,
+
+    _init: function(params) {
+        this.parent(params);
+        this._settings = Utils.SETTINGS;
+        this.margin = this.row_spacing = this.column_spacing = 10;
+        this._rownum = 0;
+    },
+
+    add_entry: function(text, key) {
+        let item = new Gtk.Entry({
+            hexpand: false
+        });
+        item.text = this._settings.get_string(key);
+        this._settings.bind(key, item, 'text', Gio.SettingsBindFlags.DEFAULT);
+
+        return this.add_row(text, item);
+    },
+
+    add_shortcut: function(text, settings_key) {
+        let item = new Gtk.Entry({
+            hexpand: false
+        });
+        item.set_text(this._settings.get_strv(settings_key)[0]);
+        item.connect('changed', Lang.bind(this, function(entry) {
+            let [key, mods] = Gtk.accelerator_parse(entry.get_text());
+
+            if(Gtk.accelerator_valid(key, mods)) {
+                let shortcut = Gtk.accelerator_name(key, mods);
+                this._settings.set_strv(settings_key, [shortcut]);
+            }
+        }));
+
+        return this.add_row(text, item);
+    },
+
+    add_boolean: function(text, key) {
+        let item = new Gtk.Switch({
+            active: this._settings.get_boolean(key)
+        });
+        this._settings.bind(key, item, 'active', Gio.SettingsBindFlags.DEFAULT);
+
+        return this.add_row(text, item);
+    },
+
+    add_combo: function(text, key, list, type) {
+        let item = new Gtk.ComboBoxText();
+
+        for(let i = 0; i < list.length; i++) {
+            let title = list[i].title.trim();
+            let id = list[i].value.toString();
+            item.insert(-1, id, title);
+        }
+
+        if(type === 'string') {
+            item.set_active_id(this._settings.get_string(key));
+        }
+        else {
+            item.set_active_id(this._settings.get_int(key).toString());
+        }
+
+        item.connect('changed', Lang.bind(this, function(combo) {
+            let value = combo.get_active_id();
+
+            if(type === 'string') {
+                if(this._settings.get_string(key) !== value) {
+                    this._settings.set_string(key, value);
+                }
+            }
+            else {
+                value = parseInt(value, 10);
+
+                if(this._settings.get_int(key) !== value) {
+                    this._settings.set_int(key, value);
+                }
+            }
+        }));
+
+        return this.add_row(text, item);
+    },
+
+    add_spin: function(label, key, adjustment_properties, spin_properties) {
+        adjustment_properties = Params.parse(adjustment_properties, {
+            lower: 0,
+            upper: 100,
+            step_increment: 100
+        });
+        let adjustment = new Gtk.Adjustment(adjustment_properties);
+
+        spin_properties = Params.parse(spin_properties, {
+            adjustment: adjustment,
+            numeric: true,
+            snap_to_ticks: true
+        }, true);
+        let spin_button = new Gtk.SpinButton(spin_properties);
+
+        spin_button.set_value(this._settings.get_int(key));
+        spin_button.connect('value-changed', Lang.bind(this, function(spin) {
+            let value = spin.get_value_as_int();
+
+            if(this._settings.get_int(key) !== value) {
+                this._settings.set_int(key, value);
+            }
+        }));
+
+        return this.add_row(label, spin_button, true);
+    },
+
+    add_row: function(text, widget, wrap) {
+        let label = new Gtk.Label({
+            label: text,
+            hexpand: true,
+            halign: Gtk.Align.START
+        });
+        label.set_line_wrap(wrap || false);
+
+        this.attach(label, 0, this._rownum, 1, 1); // col, row, colspan, rowspan
+        this.attach(widget, 1, this._rownum, 1, 1);
+        this._rownum++;
+
+        return widget;
+    },
+
+    add_item: function(widget, col, colspan, rowspan) {
+        this.attach(
+            widget,
+            col || 0,
+            this._rownum,
+            colspan || 2,
+            rowspan || 1
+        );
+        this._rownum++;
+
+        return widget;
+    }
+});
+
+const TextTranslatorPrefsWidget = new GObject.Class({
+    Name: 'TextTranslator.Prefs.Widget',
+    GTypeName: 'TextTranslatorPrefsWidget',
+    Extends: Gtk.Box,
+
+    _init: function(params) {
+        this.parent(params);
+        this._settings = Utils.SETTINGS;
+
+        let main_page = this._get_main_page();
+        let providers_page = this._get_providers_page();
+        let keybindings_page = this._get_keybindings_page();
+
+        let notebook = new Gtk.Notebook({
+            margin_left: 5,
+            margin_top: 5,
+            margin_bottom: 5,
+            margin_right: 5,
+            expand: true
+        });
+
+        notebook.append_page(main_page.page, main_page.label);
+        notebook.append_page(providers_page.page, providers_page.label);
+        notebook.append_page(keybindings_page.page, keybindings_page.label);
+
+        this.add(notebook);
+    },
+
+    _get_main_page: function() {
+        let page_label = new Gtk.Label({
+            label: 'Main'
+        });
+        let page = new TranslatorPrefsGrid();
+
+        let translators_manager = new TranslatorsManager.TranslatorsManager();
+        let names = translators_manager.translators_names;
+        let result_list = [];
+
+        for(let i = 0; i < names.length; i++) {
+            let item = {
+                title: names[i],
+                value: names[i]
+            };
+            result_list.push(item);
+        }
+
+        page.add_combo(
+            'Default translator:',
+            PrefsKeys.DEFAULT_TRANSLATOR_KEY,
+            result_list,
+            'string'
+        );
+
+        page.add_boolean(
+            'Show icon:',
+            PrefsKeys.SHOW_ICON_KEY
+        );
+        page.add_boolean(
+            'Sync entries scrolling:',
+            PrefsKeys.SYNC_ENTRIES_SCROLL_KEY
+        );
+        // page.add_boolean(
+        //     'Instant translation:',
+        //     PrefsKeys.INSTANT_TRANSLATION_KEY
+        // );
+
+        let result = {
+            label: page_label,
+            page: page
+        };
+        return result;
+    },
+
+    _get_providers_page: function() {
+        let page_label = new Gtk.Label({
+            label: 'Translators'
+        });
+        let page = new TranslatorProvidersWidget();
+
+        let result = {
+            label: page_label,
+            page: page
+        };
+        return result;
+    },
+
+    _get_keybindings_page: function() {
+        let page_label = new Gtk.Label({
+            label: 'Shortcuts'
+        });
+
+        let keybindings = {};
+        keybindings[PrefsKeys.OPEN_TRANSLATOR_KEY] =
+            'Open tranlator dialog';
+        keybindings[PrefsKeys.TRANSLATE_FROM_CLIPBOARD_KEY] =
+            'Translate from clipboard';
+        keybindings[PrefsKeys.TRANSLATE_FROM_SELECTION_KEY] = 
+            'Translate from primary selection(requires xclip)';
+
+        let page = new TranslatorKeybindingsWidget(keybindings);
+
+        let result = {
+            label: page_label,
+            page: page
+        };
+        return result;
+    },
+});
+
+function init(){
+    // nothing
+}
+
+function buildPrefsWidget() {
+    let widget = new TextTranslatorPrefsWidget();
+    widget.show_all();
+
+    return widget;
+}
