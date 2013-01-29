@@ -51,7 +51,7 @@
     </key>
 
     <key type="b" name="sync-entries-scrolling">
-        <default>true</default>
+        <default>false</default>
     </key>
 
   </schema>
