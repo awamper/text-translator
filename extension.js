@@ -201,10 +201,10 @@ const TranslatorExtension = new Lang.Class({
         this._current_langs_changed();
     },
 
-    // _show_help: function() {
-    //     let help_dialog = new Me.imports.help_dialog.HelpDialog;
-    //     help_dialog.open();
-    // },
+    _show_help: function() {
+        let help_dialog = new Me.imports.help_dialog.HelpDialog;
+        help_dialog.open();
+    },
 
     _on_source_language_chose: function(object, language) {
         this._current_source_lang = language.code;
@@ -452,19 +452,19 @@ const TranslatorExtension = new Lang.Class({
         return button;
     },
 
-    // _get_help_button: function() {
-    //     let button_params = {
-    //         style_class: 'translator-bottom-button'
-    //     };
+    _get_help_button: function() {
+        let button_params = {
+            style_class: 'translator-bottom-button'
+        };
 
-    //     let button = this._dialog.bottombar.new_button(
-    //         Utils.ICONS.help,
-    //         'Help',
-    //         button_params,
-    //         Lang.bind(this, this._show_help));
+        let button = this._dialog.bottombar.new_button(
+            Utils.ICONS.help,
+            'Help',
+            button_params,
+            Lang.bind(this, this._show_help));
 
-    //     return button;
-    // },
+        return button;
+    },
 
     _get_prefs_button: function() {
         let button_params = {
@@ -538,8 +538,8 @@ const TranslatorExtension = new Lang.Class({
         let instant_translation_button = this._get_instant_translation_button();
         this._dialog.bottombar.add_button(instant_translation_button);
 
-        // let help_button = this._get_help_button();
-        // this._dialog.bottombar.add_button(help_button);
+        let help_button = this._get_help_button();
+        this._dialog.bottombar.add_button(help_button);
 
         let prefs_button = this._get_prefs_button();
         this._dialog.bottombar.add_button(prefs_button);
