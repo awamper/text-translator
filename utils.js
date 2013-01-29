@@ -7,6 +7,7 @@ const Gio = imports.gi.Gio;
 const GLib = imports.gi.GLib;
 const ExtensionUtils = imports.misc.extensionUtils;
 const Soup = imports.gi.Soup;
+const Clutter = imports.gi.Clutter;
 
 const _httpSession = new Soup.SessionAsync();
 Soup.Session.prototype.add_feature.call(
@@ -139,4 +140,15 @@ function get_primary_selection() {
     }
 
     return result;
+}
+
+function get_unichar(keyval) {
+    let ch = Clutter.keysym_to_unicode(keyval);
+
+    if(ch) {
+        return String.fromCharCode(ch);
+    }
+    else {
+        return false;
+    }
 }

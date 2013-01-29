@@ -133,7 +133,7 @@
 .translator-language-chooser-box {
     border: 1px solid rgba(64, 64, 64, 0.5);
     width: 800px;
-    height: 350px;
+    height: 340px;
 }
 
 .translator-language-chooser-title {
@@ -141,6 +141,17 @@
     font-size: 20px;
     font-weight: bold;
     padding: 5px;
+}
+
+.translator-language-chooser-entry {
+    size: 10px;
+    color: black;
+    padding: 3px;
+    width: 150px;
+    background-color: rgba(64, 64, 64, 0.5);
+    caret-color: rgb(0, 0, 0);
+    caret-size: 2px;
+    selected-color: white;
 }
 
 .translator-language-chooser-button {

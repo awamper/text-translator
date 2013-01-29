@@ -43,6 +43,34 @@ const LanguageChooser = new Lang.Class({
             style_class: 'translator-language-chooser-title'
         });
 
+        this._search_entry = new St.Entry({
+            style_class: 'translator-language-chooser-entry',
+            visible: false
+        });
+        this._search_entry.connect('key-press-event', Lang.bind(this, function(o, e) {
+            let symbol = e.get_key_symbol();
+
+            if(symbol == Clutter.Escape) {
+                this._search_entry.set_text('');
+                this._search_entry.hide();
+                this._scroll.grab_key_focus();
+                this._info_label.show();
+                return true;
+            }
+            else {
+                return false;
+            }
+        }));
+        this._search_entry.clutter_text.connect(
+            'text-changed',
+            Lang.bind(this, this._update_list)
+        );
+
+        this._info_label = new St.Label({
+            text: '<span color="black"><i>Type to search...</i></span>'
+        });
+        this._info_label.clutter_text.set_use_markup(true);
+
         this._close_button = this._get_close_button();
 
         this._table = new St.Table({
@@ -61,7 +89,27 @@ const LanguageChooser = new Lang.Class({
         this._table.add(this._scroll, {
             row: 1,
             col: 0,
-            col_span: 2
+            col_span: 2,
+            y_fill: false,
+            y_align: St.Align.START
+        });
+        this._table.add(this._search_entry, {
+            row: 2,
+            col: 0,
+            col_span: 2,
+            y_fill: false,
+            x_fill: false,
+            y_align: St.Align.END,
+            x_align: St.Align.END
+        });
+        this._table.add(this._info_label, {
+            row: 2,
+            col: 0,
+            col_span: 2,
+            y_fill: false,
+            x_fill: false,
+            y_align: St.Align.END,
+            x_align: St.Align.END
         });
 
         this.set_languages(languages);
@@ -75,6 +123,34 @@ const LanguageChooser = new Lang.Class({
         if(symbol == Clutter.Escape) {
             this.close();
         }
+        else {
+            let ch = Utils.get_unichar(symbol);
+
+            if(ch) {
+                // log(ch);
+                this._info_label.hide();
+                this._search_entry.set_text(ch);
+                this._search_entry.show();
+                this._search_entry.grab_key_focus();
+            }
+        }
+    },
+
+    _update_list: function() {
+        this._languages_table.destroy_all_children();
+        let filtered = {};
+
+        for(let key in this._languages) {
+            let lang_name = this._languages[key];
+            let lang_code = key;
+            let search_text = this._search_entry.get_text().toLowerCase();
+
+            if(!Utils.starts_with(lang_name.toLowerCase(), search_text)) continue;
+
+            filtered[lang_code] = lang_name;
+        }
+
+        this.show_languages('', filtered);
     },
 
     _get_close_button: function() {
@@ -114,12 +190,15 @@ const LanguageChooser = new Lang.Class({
         return button;
     },
 
-    show_languages: function(selected_language_code) {
+    show_languages: function(selected_language_code, list) {
         let row = 0;
         let column = 0;
+        let languages = this._languages;
 
-        for(let code in this._languages) {
-            let button = this._get_button(code, this._languages[code]);
+        if(!Utils.is_blank(list)) languages = list;
+
+        for(let code in languages) {
+            let button = this._get_button(code, languages[code]);
 
             if(button.lang_code === selected_language_code) {
                 button.add_style_pseudo_class('active');
@@ -149,6 +228,8 @@ const LanguageChooser = new Lang.Class({
 
     close: function() {
         this._languages_table.destroy_all_children();
+        this._search_entry.set_text('');
+        this._search_entry.hide();
         this.parent();
     },
 });
