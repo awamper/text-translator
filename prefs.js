@@ -128,12 +128,7 @@ const TranslatorProvidersWidget = new GObject.Class({
     },
 
     _load_default_source: function(languages, active_id) {
-        // let old = this.get_child_at(
-        //     this.POSITIONS.default_source.col,
-        //     this.POSITIONS.default_source.row
-        // );
-
-        // if(old) old.destroy();
+        this._source_languages_combo.destroy();
 
         this._source_languages_combo = new Gtk.ComboBoxText();
         this._source_languages_combo.connect('changed',
@@ -184,12 +179,7 @@ const TranslatorProvidersWidget = new GObject.Class({
     },
 
     _load_default_target: function(languages, active_id) {
-        // let old = this.get_child_at(
-        //     this.POSITIONS.default_target.col,
-        //     this.POSITIONS.default_target.row
-        // );
-
-        // if(old) old.destroy();
+        this._target_languages_combo.destroy();
 
         this._target_languages_combo = new Gtk.ComboBoxText();
         this._target_languages_combo.connect('changed',
