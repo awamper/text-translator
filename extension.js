@@ -109,13 +109,14 @@ const TranslatorExtension = new Lang.Class({
         if(symbol == Clutter.Escape) {
             this.close();
         }
+        // ctrl+return - translate text
         else if(
             state == Clutter.ModifierType.CONTROL_MASK &&
             symbol == Clutter.Return
         ) {
             this._translate();
         }
-        // ctrl+shift+c
+        // ctrl+shift+c - copy translated text to clipboard
         else if(
             state == Clutter.ModifierType.SHIFT_MASK +
             Clutter.ModifierType.CONTROL_MASK &&
@@ -142,12 +143,19 @@ const TranslatorExtension = new Lang.Class({
                 );
             }
         }
-        // ctr+s
+        // ctr+s - swap languages
         else if(
             state == Clutter.ModifierType.CONTROL_MASK &&
             symbol == 115
         ) {
             this._swap_languages();
+        }
+        // ctrl+d - reset languages to default
+        else if(
+            state == Clutter.ModifierType.CONTROL_MASK &&
+            symbol == 100
+        ) {
+            this._reset_languages()
         }
         else {
             // log(state+':'+symbol);
@@ -179,6 +187,15 @@ const TranslatorExtension = new Lang.Class({
         let current = this._translators_manager.current;
         [this._current_source_lang, this._current_target_lang] =
             [this._current_target_lang, this._current_source_lang];
+        current.last_source = this._current_source_lang;
+        current.last_target = this._current_target_lang;
+        this._current_langs_changed();
+    },
+
+    _reset_languages: function() {
+        let current = this._translators_manager.current;
+        this._current_source_lang = current.default_source;
+        this._current_target_lang = current.default_target;
         current.last_source = this._current_source_lang;
         current.last_target = this._current_target_lang;
         this._current_langs_changed();
