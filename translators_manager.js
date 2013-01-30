@@ -77,4 +77,10 @@ const TranslatorsManager = new Lang.Class({
     get num_translators() {
         return this._translators.length;
     },
+
+    destroy: function() {
+        for(let i = 0; i < this._translators.length; i++) {
+            this._translators[i].destroy();
+        }
+    },
 });

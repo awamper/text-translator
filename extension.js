@@ -720,14 +720,15 @@ const TranslatorExtension = new Lang.Class({
             }
         }
 
-        Utils.SETTINGS.connect('changed::'+PrefsKeys.SHOW_ICON_KEY,
-            Lang.bind(this, function() {
-                let show = Utils.SETTINGS.get_boolean(PrefsKeys.SHOW_ICON_KEY);
+        this._settings_icon_connect_id =
+            Utils.SETTINGS.connect('changed::'+PrefsKeys.SHOW_ICON_KEY,
+                Lang.bind(this, function() {
+                    let show = Utils.SETTINGS.get_boolean(PrefsKeys.SHOW_ICON_KEY);
 
-                if(show && !this._panel_button) this._add_panel_button();
-                if(!show) this._remove_panel_button();
-            })
-        );
+                    if(show && !this._panel_button) this._add_panel_button();
+                    if(!show) this._remove_panel_button();
+                })
+            );
 
         this._add_keybindings();
     },
@@ -735,7 +736,14 @@ const TranslatorExtension = new Lang.Class({
     disable: function() {
         this.close();
         this._dialog.destroy();
+        this._translators_manager.destroy();
+        this._source_language_chooser.destroy();
+        this._target_language_chooser.destroy();
         this._remove_keybindings();
+
+        if(this._settings_icon_connect_id > 0) {
+            Utils.SETTINGS.disconnect(this._settings_icon_connect_id);
+        }
 
         if(this._panel_button !== false) {
             this._remove_panel_button();

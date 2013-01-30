@@ -83,6 +83,11 @@ const TranslationProviderPrefs = new Lang.Class({
     _init: function(provider_name) {
         this._name = provider_name;
 
+        this._settings_connect_id = Utils.SETTINGS.connect(
+            'changed::'+PrefsKeys.TRANSLATORS_PREFS_KEY,
+            Lang.bind(this, this._load_prefs)
+        );
+
         this._last_source;
         this._last_target;
         this._default_source;
@@ -132,6 +137,12 @@ const TranslationProviderPrefs = new Lang.Class({
             PrefsKeys.TRANSLATORS_PREFS_KEY,
             JSON.stringify(current_prefs)
         );
+    },
+
+    destroy: function() {
+        if(this._settings_connect_id > 0) {
+            Utils.SETTINGS.disconnect(this._settings_connect_id);
+        }
     },
 
     get last_source() {
@@ -270,5 +281,9 @@ const TranslationProviderBase = new Lang.Class({
 
     get limit() {
         return this._limit;
+    },
+
+    destroy: function() {
+        this.prefs.destroy();
     },
 });
