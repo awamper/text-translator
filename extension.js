@@ -35,6 +35,8 @@ const TRIGGERS = {
     translate: true
 };
 
+const INSTANT_TRANSLATION_DELAY = 900; // ms
+
 const TranslatorExtension = new Lang.Class({
     Name: 'TranslatorExtension',
 
@@ -50,7 +52,8 @@ const TranslatorExtension = new Lang.Class({
                 this._remove_timeouts('instant_translation');
 
                 if(TRIGGERS.translate) {
-                    TIMEOUT_IDS.instant_translation = Mainloop.timeout_add(500,
+                    TIMEOUT_IDS.instant_translation = Mainloop.timeout_add(
+                        INSTANT_TRANSLATION_DELAY,
                         Lang.bind(this, this._translate)
                     );
                 }
