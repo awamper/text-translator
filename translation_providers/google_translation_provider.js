@@ -135,6 +135,7 @@ const Translator = new Lang.Class({
             }));
         }
         else {
+            this._results = [];
             Utils.asyncLoop({
                 length: splitted.length,
                 functionToLoop: Lang.bind(this, function(loop, i){
