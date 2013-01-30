@@ -114,8 +114,8 @@ const TranslatorExtension = new Lang.Class({
         }
         // ctrl+return - translate text
         else if(
-            state == Clutter.ModifierType.CONTROL_MASK || state == cyrillic_control &&
-            symbol == Clutter.Return || symbol == Clutter.KP_Enter
+            (state == Clutter.ModifierType.CONTROL_MASK || state == cyrillic_control) &&
+            (symbol == Clutter.Return || symbol == Clutter.KP_Enter)
         ) {
             this._translate();
         }
