@@ -162,42 +162,50 @@ const TranslatorExtension = new Lang.Class({
         }
     },
 
+    _set_current_source: function(lang_code) {
+        this._current_source_lang = lang_code;
+        this._translators_manager.current.last_source = lang_code;
+    },
+
+    _set_current_target: function(lang_code) {
+        this._current_target_lang = lang_code;
+        this._translators_manager.current.last_target = lang_code;
+    },
+
     _set_current_languages: function() {
-        let current = this._translators_manager.current;
+        let current_translator = this._translators_manager.current;
+        let current_source = current_translator.default_source;
+        let current_target = current_translator.default_target;
 
-        if(current.remember_last_used) {
-            this._current_source_lang =
-                current.last_source !== false
-                ? current.last_source
-                : current.default_source;
-            this._current_target_lang =
-                current.last_target
-                ? current.last_target
-                : current.default_target;
-        }
-        else {
-            this._current_source_lang = current.default_source;
-            this._current_target_lang = current.default_target;
+        if(current_translator.remember_last_used) {
+            current_source =
+                current_translator.last_source !== false
+                ? current_translator.last_source
+                : current_translator.default_source;
+            current_target =
+                current_translator.last_target
+                ? current_translator.last_target
+                : current_translator.default_target;
         }
 
+        this._set_current_source(current_source);
+        this._set_current_target(current_target);
         this._current_langs_changed();
     },
 
     _swap_languages: function() {
         let current = this._translators_manager.current;
-        [this._current_source_lang, this._current_target_lang] =
-            [this._current_target_lang, this._current_source_lang];
-        current.last_source = this._current_source_lang;
-        current.last_target = this._current_target_lang;
+        let source = this._current_source_lang;
+        let target = this._current_target_lang;
+        this._set_current_source(target);
+        this._set_current_target(source);
         this._current_langs_changed();
     },
 
     _reset_languages: function() {
         let current = this._translators_manager.current;
-        this._current_source_lang = current.default_source;
-        this._current_target_lang = current.default_target;
-        current.last_source = this._current_source_lang;
-        current.last_target = this._current_target_lang;
+        this._set_current_source(current.default_source);
+        this._set_current_target(current.default_target);
         this._current_langs_changed();
     },
 
@@ -207,15 +215,13 @@ const TranslatorExtension = new Lang.Class({
     },
 
     _on_source_language_chose: function(object, language) {
-        this._current_source_lang = language.code;
-        this._translators_manager.current.last_source = language.code;
+        this._set_current_source(language.code);
         this._current_langs_changed();
         this._source_language_chooser.close();
     },
 
     _on_target_language_chose: function(object, language) {
-        this._current_target_lang = language.code;
-        this._translators_manager.current.last_target = language.code;
+        this._set_current_target(language.code);
         this._current_langs_changed();
         this._target_language_chooser.close();
     },
