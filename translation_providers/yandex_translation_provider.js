@@ -194,17 +194,7 @@ const Translator = new Lang.Class({
     },
 
     translate: function(source_lang, target_lang, text, callback) {
-        if(Utils.is_blank(text)) {
-            callback(false);
-            return;
-        }
-
         if(source_lang == 'auto') source_lang = '';
-
-        let url = this.make_url(source_lang, target_lang, text);
-        this._get_data_async(url, Lang.bind(this, function(result) {
-            let data = this.parse_response(result);
-            callback(data);
-        }));
+        this.parent(source_lang, target_lang, text, callback);
     },
 });

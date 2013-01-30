@@ -179,7 +179,16 @@ const TranslationProviderBase = new Lang.Class({
     },
 
     translate: function(source_lang, target_lang, text, callback) {
-        throw new Error('Not implemented');
+        if(Utils.is_blank(text)) {
+            callback(false);
+            return;
+        }
+
+        let url = this.make_url(source_lang, target_lang, text);
+        this._get_data_async(url, Lang.bind(this, function(result) {
+            let data = this.parse_response(result);
+            callback(data);
+        }));
     },
 
     get_language_name: function(code) {
