@@ -9,74 +9,6 @@ const LIMIT = 9800;
 const URL =
     'https://translate.yandex.net/api/v1/tr.json/' +
     'translate?lang=%s-%s&text=%s';
-const LANGUAGES_LIST = {
-    "auto": "Detect language",
-    "af": "Afrikaans",
-    "ar": "Arabic",
-    "az": "Azerbaijani",
-    "be": "Belarusian",
-    "bg": "Bulgarian",
-    "bn": "Bengali",
-    "ca": "Catalan",
-    "cs": "Czech",
-    "cy": "Welsh",
-    "da": "Danish",
-    "de": "German",
-    "el": "Greek",
-    "en": "English",
-    "es": "Spanish",
-    "et": "Estonian",
-    "eu": "Basque",
-    "fa": "Persian",
-    "fi": "Finnish",
-    "fr": "French",
-    "ga": "Irish",
-    "gl": "Galician",
-    "gu": "Gujarati",
-    "hi": "Hindi",
-    "hr": "Croatian",
-    "ht": "HaitianCreole",
-    "hu": "Hungarian",
-    "hy": "Armenian",
-    "id": "Indonesian",
-    "is": "Icelandic",
-    "it": "Italian",
-    "iw": "Hebrew",
-    "ja": "Japanese",
-    "ka": "Georgian",
-    "kn": "Kannada",
-    "ko": "Korean",
-    "la": "Latin",
-    "lo": "Lao",
-    "lt": "Lithuanian",
-    "lv": "Latvian",
-    "mk": "Macedonian",
-    "ms": "Malay",
-    "mt": "Maltese",
-    "nl": "Dutch",
-    "no": "Norwegian",
-    "pl": "Polish",
-    "pt": "Portuguese",
-    "ro": "Romanian",
-    "ru": "Russian",
-    "sk": "Slovak",
-    "sl": "Slovenian",
-    "sq": "Albanian",
-    "sr": "Serbian",
-    "sv": "Swedish",
-    "sw": "Swahili",
-    "ta": "Tamil",
-    "te": "Telugu",
-    "th": "Thai",
-    "tl": "Filipino",
-    "tr": "Turkish",
-    "uk": "Ukrainian",
-    "ur": "Urdu",
-    "vi": "Vietnamese",
-    "yi": "Yiddish",
-    "zh-CN": "Chinese Simplified",
-    "zh-TW": "Chinese Traditional"
-};
 
 const LANGUAGE_PAIRS = [
     "ru-en",
@@ -127,17 +59,13 @@ const Translator = new Lang.Class({
         this.parent(NAME, LIMIT, URL);
     },
 
-    get_language_name: function(lang_code) {
-        return LANGUAGES_LIST[lang_code] || false;
-    },
-
     get_languages: function() {
         let temp = {};
 
         for(let i = 0; i < LANGUAGE_PAIRS.length; i++) {
             let pair = LANGUAGE_PAIRS[i];
             let lang_code = pair.slice(0, 2);
-            let lang_name = LANGUAGES_LIST[lang_code];
+            let lang_name = this.get_language_name(lang_code);
 
             temp[lang_code] = lang_name;
         }
@@ -154,7 +82,8 @@ const Translator = new Lang.Class({
             let target_lang_code = pair.slice(-2)
 
             if(source_lang_code.toLowerCase() == language.toLowerCase()) {
-                temp[target_lang_code] = LANGUAGES_LIST[target_lang_code];
+                temp[target_lang_code] =
+                    TranslationProviderBase.LANGUAGES_LIST[target_lang_code];
             }
         }
 

@@ -8,6 +8,75 @@ const PrefsKeys = Me.imports.prefs_keys;
 
 const _httpSession = Utils._httpSession;
 
+const LANGUAGES_LIST = {
+    "auto": "Detect language",
+    "af": "Afrikaans",
+    "ar": "Arabic",
+    "az": "Azerbaijani",
+    "be": "Belarusian",
+    "bg": "Bulgarian",
+    "bn": "Bengali",
+    "ca": "Catalan",
+    "cs": "Czech",
+    "cy": "Welsh",
+    "da": "Danish",
+    "de": "German",
+    "el": "Greek",
+    "en": "English",
+    "es": "Spanish",
+    "et": "Estonian",
+    "eu": "Basque",
+    "fa": "Persian",
+    "fi": "Finnish",
+    "fr": "French",
+    "ga": "Irish",
+    "gl": "Galician",
+    "gu": "Gujarati",
+    "hi": "Hindi",
+    "hr": "Croatian",
+    "ht": "HaitianCreole",
+    "hu": "Hungarian",
+    "hy": "Armenian",
+    "id": "Indonesian",
+    "is": "Icelandic",
+    "it": "Italian",
+    "iw": "Hebrew",
+    "ja": "Japanese",
+    "ka": "Georgian",
+    "kn": "Kannada",
+    "ko": "Korean",
+    "la": "Latin",
+    "lo": "Lao",
+    "lt": "Lithuanian",
+    "lv": "Latvian",
+    "mk": "Macedonian",
+    "ms": "Malay",
+    "mt": "Maltese",
+    "nl": "Dutch",
+    "no": "Norwegian",
+    "pl": "Polish",
+    "pt": "Portuguese",
+    "ro": "Romanian",
+    "ru": "Russian",
+    "sk": "Slovak",
+    "sl": "Slovenian",
+    "sq": "Albanian",
+    "sr": "Serbian",
+    "sv": "Swedish",
+    "sw": "Swahili",
+    "ta": "Tamil",
+    "te": "Telugu",
+    "th": "Thai",
+    "tl": "Filipino",
+    "tr": "Turkish",
+    "uk": "Ukrainian",
+    "ur": "Urdu",
+    "vi": "Vietnamese",
+    "yi": "Yiddish",
+    "zh-CN": "Chinese Simplified",
+    "zh-TW": "Chinese Traditional"
+};
+
 const TranslationProviderPrefs = new Lang.Class({
     Name: "TranslationProviderPrefs",
 
@@ -167,7 +236,11 @@ const TranslationProviderBase = new Lang.Class({
     },
 
     get_languages: function() {
-        throw new Error('Not implemented');
+        return LANGUAGES_LIST;
+    },
+
+    get_language_name: function(lang_code) {
+        return LANGUAGES_LIST[lang_code] || false;
     },
 
     get_pairs: function(language) {
@@ -189,10 +262,6 @@ const TranslationProviderBase = new Lang.Class({
             let data = this.parse_response(result);
             callback(data);
         }));
-    },
-
-    get_language_name: function(code) {
-        throw new Error('Not implemented');
     },
 
     get name() {
