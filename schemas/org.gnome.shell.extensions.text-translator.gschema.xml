@@ -28,14 +28,14 @@
               "default_target":"ru",
               "last_source":"",
               "last_target":"",
-              "remember_last_used": false
+              "remember_last_lang": false
            },
            "Yandex.Translate":{
               "default_source":"ru",
               "default_target":"fr",
               "last_source":"",
               "last_target":"",
-              "remember_last_used": true
+              "remember_last_lang": true
            }
         }
         '

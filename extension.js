@@ -177,7 +177,7 @@ const TranslatorExtension = new Lang.Class({
         let current_source = current_translator.prefs.default_source;
         let current_target = current_translator.prefs.default_target;
 
-        if(current_translator.prefs.remember_last_used) {
+        if(current_translator.prefs.remember_last_lang) {
             current_source =
                 current_translator.prefs.last_source !== false
                 ? current_translator.prefs.last_source

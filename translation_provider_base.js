@@ -18,7 +18,7 @@ const TranslationProviderPrefs = new Lang.Class({
         this._last_target;
         this._default_source;
         this._default_target;
-        this._remember_last_used;
+        this._remember_last_lang;
 
         this._load_prefs();
     },
@@ -39,7 +39,7 @@ const TranslationProviderPrefs = new Lang.Class({
         this._default_target = prefs.default_target || "ru";
         this._last_source = prefs.last_source || "";
         this._last_target = prefs.last_target || "";
-        this._remember_last_used = prefs.remember_last_used || false;
+        this._remember_last_lang = prefs.remember_last_lang || false;
     },
 
     save_prefs: function(new_prefs) {
@@ -113,15 +113,15 @@ const TranslationProviderPrefs = new Lang.Class({
         });
     },
 
-    get remember_last_used() {
-        return this._remember_last_used;
+    get remember_last_lang() {
+        return this._remember_last_lang;
     },
 
-    set remember_last_used(enable) {
+    set remember_last_lang(enable) {
         enable = enable === true ? true : false;
-        this._remember_last_used = enable;
+        this._remember_last_lang = enable;
         this.save_prefs({
-            remember_last_used: enable
+            remember_last_lang: enable
         });
     },
 });

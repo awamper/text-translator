@@ -84,7 +84,7 @@ const TranslatorProvidersWidget = new GObject.Class({
             this.POSITIONS.default_target_label.rowspan
         );
 
-        // remember last used
+        // remember last lang
         label = new Gtk.Label({
             label: 'Remember the last used languages:',
             hexpand: true,
@@ -104,7 +104,7 @@ const TranslatorProvidersWidget = new GObject.Class({
             let active = s.get_active();
             let name = this._translators_combo.get_active_id();
             let translator = this._translators_manager.get_by_name(name);
-            translator.remember_last_used = active;
+            translator.remember_last_lang = active;
         }));
         this.attach(
             this._last_used,
@@ -230,7 +230,7 @@ const TranslatorProvidersWidget = new GObject.Class({
         let target_langs = translator.get_pairs(translator.default_source);
         this._load_default_target(target_langs, translator.default_target);
 
-        this._last_used.set_active(translator.remember_last_used);
+        this._last_used.set_active(translator.remember_last_lang);
     },
 });
 
