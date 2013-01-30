@@ -164,28 +164,28 @@ const TranslatorExtension = new Lang.Class({
 
     _set_current_source: function(lang_code) {
         this._current_source_lang = lang_code;
-        this._translators_manager.current.last_source = lang_code;
+        this._translators_manager.current.prefs.last_source = lang_code;
     },
 
     _set_current_target: function(lang_code) {
         this._current_target_lang = lang_code;
-        this._translators_manager.current.last_target = lang_code;
+        this._translators_manager.current.prefs.last_target = lang_code;
     },
 
     _set_current_languages: function() {
         let current_translator = this._translators_manager.current;
-        let current_source = current_translator.default_source;
-        let current_target = current_translator.default_target;
+        let current_source = current_translator.prefs.default_source;
+        let current_target = current_translator.prefs.default_target;
 
-        if(current_translator.remember_last_used) {
+        if(current_translator.prefs.remember_last_used) {
             current_source =
-                current_translator.last_source !== false
-                ? current_translator.last_source
-                : current_translator.default_source;
+                current_translator.prefs.last_source !== false
+                ? current_translator.prefs.last_source
+                : current_translator.prefs.default_source;
             current_target =
-                current_translator.last_target
-                ? current_translator.last_target
-                : current_translator.default_target;
+                current_translator.prefs.last_target
+                ? current_translator.prefs.last_target
+                : current_translator.prefs.default_target;
         }
 
         this._set_current_source(current_source);
@@ -204,8 +204,8 @@ const TranslatorExtension = new Lang.Class({
 
     _reset_languages: function() {
         let current = this._translators_manager.current;
-        this._set_current_source(current.default_source);
-        this._set_current_target(current.default_target);
+        this._set_current_source(current.prefs.default_source);
+        this._set_current_target(current.prefs.default_target);
         this._current_langs_changed();
     },
 

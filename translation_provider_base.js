@@ -8,13 +8,11 @@ const PrefsKeys = Me.imports.prefs_keys;
 
 const _httpSession = Utils._httpSession;
 
-const TranslationProviderBase = new Lang.Class({
-    Name: 'TranslationProviderBase',
+const TranslationProviderPrefs = new Lang.Class({
+    Name: "TranslationProviderPrefs",
 
-    _init: function(name, limit, url) {
-        this._name = name;
-        this._limit = limit;
-        this._url = url;
+    _init: function(provider_name) {
+        this._name = provider_name;
 
         this._last_source;
         this._last_target;
@@ -23,27 +21,6 @@ const TranslationProviderBase = new Lang.Class({
         this._remember_last_used;
 
         this._load_prefs();
-    },
-
-    _get_data_async: function(url, callback) {
-        let request = Soup.Message.new('GET', url);
-
-        _httpSession.queue_message(request, Lang.bind(this,
-            function(_httpSession, message) {
-                if(message.status_code === 200) {
-                    try {
-                        callback(request.response_body.data);
-                    }
-                    catch(e) {
-                        log('Error: '+e);
-                        callback('');
-                    }
-                }
-                else {
-                    callback('');
-                }
-            }
-        ));
     },
 
     _load_prefs: function() {
@@ -86,43 +63,6 @@ const TranslationProviderBase = new Lang.Class({
             PrefsKeys.TRANSLATORS_PREFS_KEY,
             JSON.stringify(current_prefs)
         );
-    },
-
-    make_url: function(source_lang, target_lang, text) {
-        let result = this._url.format(
-            source_lang,
-            target_lang,
-            encodeURIComponent(text)
-        );
-        return result;
-    },
-
-    get_languages: function() {
-        throw new Error('Not implemented');
-    },
-
-    get_pairs: function(language) {
-        throw new Error('Not implemented');
-    },
-
-    parse_response: function(helper_source_data) {
-        throw new Error('Not implemented');
-    },
-
-    translate: function(source_lang, target_lang, text, callback) {
-        throw new Error('Not implemented');
-    },
-
-    get_language_name: function(code) {
-        throw new Error('Not implemented');
-    },
-
-    get name() {
-        return this._name;
-    },
-
-    get limit() {
-        return this._limit;
     },
 
     get last_source() {
@@ -183,5 +123,74 @@ const TranslationProviderBase = new Lang.Class({
         this.save_prefs({
             remember_last_used: enable
         });
+    },
+});
+
+const TranslationProviderBase = new Lang.Class({
+    Name: 'TranslationProviderBase',
+
+    _init: function(name, limit, url) {
+        this._name = name;
+        this._limit = limit;
+        this._url = url;
+        this.prefs = new TranslationProviderPrefs(this._name);
+    },
+
+    _get_data_async: function(url, callback) {
+        let request = Soup.Message.new('GET', url);
+
+        _httpSession.queue_message(request, Lang.bind(this,
+            function(_httpSession, message) {
+                if(message.status_code === 200) {
+                    try {
+                        callback(request.response_body.data);
+                    }
+                    catch(e) {
+                        log('Error: '+e);
+                        callback('');
+                    }
+                }
+                else {
+                    callback('');
+                }
+            }
+        ));
+    },
+
+    make_url: function(source_lang, target_lang, text) {
+        let result = this._url.format(
+            source_lang,
+            target_lang,
+            encodeURIComponent(text)
+        );
+        return result;
+    },
+
+    get_languages: function() {
+        throw new Error('Not implemented');
+    },
+
+    get_pairs: function(language) {
+        throw new Error('Not implemented');
+    },
+
+    parse_response: function(helper_source_data) {
+        throw new Error('Not implemented');
+    },
+
+    translate: function(source_lang, target_lang, text, callback) {
+        throw new Error('Not implemented');
+    },
+
+    get_language_name: function(code) {
+        throw new Error('Not implemented');
+    },
+
+    get name() {
+        return this._name;
+    },
+
+    get limit() {
+        return this._limit;
     },
 });
