@@ -137,14 +137,14 @@ const TranslatorProvidersWidget = new GObject.Class({
                 let translator = this._translators_manager.get_by_name(name);
                 let lang_code = combo.get_active_id();
 
-                if(!translator || translator.default_source == lang_code) return;
+                if(!translator || translator.prefs.default_source == lang_code) return;
 
-                translator.default_source = lang_code;
+                translator.prefs.default_source = lang_code;
                 let languages = translator.get_pairs(lang_code);
                 let active_id = -1;
 
-                if(languages[translator.default_target] != undefined) {
-                    active_id = translator.default_target;
+                if(languages[translator.prefs.default_target] != undefined) {
+                    active_id = translator.prefs.default_target;
                 }
 
                 this._load_default_target(languages, active_id);
@@ -188,9 +188,9 @@ const TranslatorProvidersWidget = new GObject.Class({
                 let translator = this._translators_manager.get_by_name(name);
                 let lang_code = combo.get_active_id();
 
-                if(!translator || translator.default_target == lang_code) return;
+                if(!translator || translator.prefs.default_target == lang_code) return;
 
-                translator.default_target = lang_code;
+                translator.prefs.default_target = lang_code;
             })
         );
 
