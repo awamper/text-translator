@@ -106,13 +106,16 @@ const TranslatorExtension = new Lang.Class({
         let state = event.get_state();
         let symbol = event.get_key_symbol();
 
+        let cyrillic_control = 8196;
+        let cyrillic_shift = 8192;
+
         if(symbol == Clutter.Escape) {
             this.close();
         }
         // ctrl+return - translate text
         else if(
-            state == Clutter.ModifierType.CONTROL_MASK &&
-            symbol == Clutter.Return
+            state == Clutter.ModifierType.CONTROL_MASK || state == cyrillic_control &&
+            symbol == Clutter.Return || symbol == Clutter.KP_Enter
         ) {
             this._translate();
         }
