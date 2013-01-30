@@ -152,3 +152,16 @@ function get_unichar(keyval) {
         return false;
     }
 }
+
+// http://stackoverflow.com/a/7654602
+var asyncLoop = function(o) {
+    var i = -1;
+
+    var loop = function(){
+        i++;
+        if(i == o.length) {o.callback(); return;}
+        o.functionToLoop(loop, i);
+    }
+
+    loop();//init
+}

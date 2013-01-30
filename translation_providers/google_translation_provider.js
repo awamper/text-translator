@@ -5,10 +5,11 @@ const TranslationProviderBase = Extension.imports.translation_provider_base;
 const Utils = Extension.imports.utils;
 
 const NAME = 'Google.Translate';
-const LIMIT = 1400;
 const URL =
     'http://translate.google.com/translate_a/t?' +
     'client=j&ie=UTF-8&oe=UTF-8&sl=%s&tl=%s&text=%s';
+const LIMIT = 1400;
+const MAX_QUERIES = 3;
 const LANGUAGES_LIST = {
     "auto": "Detect language",
     "af": "Afrikaans",
@@ -75,15 +76,19 @@ const LANGUAGES_LIST = {
     "vi": "Vietnamese",
     "yi": "Yiddish",
     "zh-CN": "Chinese Simplified",
+
     "zh-TW": "Chinese Traditional"
 };
+
+const SENTENCES_REGEXP = /\n|([^\r\n.!?]+([.!?]+|\n))/gim;
 
 const Translator = new Lang.Class({
     Name: 'GoogleTranslate',
     Extends: TranslationProviderBase.TranslationProviderBase,
 
     _init: function() {
-        this.parent(NAME, LIMIT, URL);
+        this.parent(NAME, LIMIT*MAX_QUERIES, URL);
+        this._results = [];
     },
 
     _markup_dict: function(dict_data) {
@@ -105,6 +110,37 @@ const Translator = new Lang.Class({
         }
 
         result += '</span>';
+        return result;
+    },
+
+    _split_text: function(text) {
+        let sentences = text.match(SENTENCES_REGEXP);
+
+        if(sentences == null) {
+            return false;
+        }
+
+        let temp = '';
+        let result = [];
+
+        for(let i = 0; i < sentences.length; i++) {
+            let sentence = sentences[i];
+            if(Utils.is_blank(sentence)) {
+                temp += '\n';
+                continue;
+            }
+
+            if(sentence.length + temp.length > LIMIT) {
+                result.push(temp);
+                temp = sentence;
+            }
+            else {
+                temp += sentence;
+
+                if(i == (sentences.length - 1)) result.push(temp);
+            }
+        }
+
         return result;
     },
 
@@ -138,7 +174,7 @@ const Translator = new Lang.Class({
         catch(e) {
             log('%s Error: %s'.format(
                 this.name,
-                JSON.stringify(e, null, '\t')
+                JSON.stringify(e, null, '\t')+"\nResponse_data:\n"+response_data
             ));
             return {
                 error: true,
@@ -165,10 +201,32 @@ const Translator = new Lang.Class({
             return;
         }
 
-        let url = this.make_url(source_lang, target_lang, text);
-        this._get_data_async(url, Lang.bind(this, function(result) {
-            let data = this.parse_response(result);
-            callback(data);
-        }));
+        let splitted = this._split_text(text);
+
+        if(!splitted || splitted.length === 1) {
+            if(splitted) text = splitted[0];
+            let url = this.make_url(source_lang, target_lang, text);
+            this._get_data_async(url, Lang.bind(this, function(result) {
+                let data = this.parse_response(result);
+                callback(data);
+            }));
+        }
+        else {
+            Utils.asyncLoop({
+                length: splitted.length,
+                functionToLoop: Lang.bind(this, function(loop, i){
+                    let text = splitted[i];
+                    let url = this.make_url(source_lang, target_lang, text);
+                    this._get_data_async(url, Lang.bind(this, function(result) {
+                        let data = this.parse_response(result);
+                        this._results.push(data);
+                        loop();
+                    }));
+                }),
+                callback: Lang.bind(this, function() {
+                    callback(this._results.join(' '));
+                })
+            });
+        }
     },
 });
