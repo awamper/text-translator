@@ -104,7 +104,7 @@ const TranslatorProvidersWidget = new GObject.Class({
             let active = s.get_active();
             let name = this._translators_combo.get_active_id();
             let translator = this._translators_manager.get_by_name(name);
-            translator.remember_last_lang = active;
+            translator.prefs.remember_last_lang = active;
         }));
         this.attach(
             this._last_used,
@@ -225,12 +225,12 @@ const TranslatorProvidersWidget = new GObject.Class({
         let translator = this._translators_manager.get_by_name(name);
 
         let source_langs = translator.get_languages();
-        this._load_default_source(source_langs, translator.default_source);
+        this._load_default_source(source_langs, translator.prefs.default_source);
 
-        let target_langs = translator.get_pairs(translator.default_source);
-        this._load_default_target(target_langs, translator.default_target);
+        let target_langs = translator.get_pairs(translator.prefs.default_source);
+        this._load_default_target(target_langs, translator.prefs.default_target);
 
-        this._last_used.set_active(translator.remember_last_lang);
+        this._last_used.set_active(translator.prefs.remember_last_lang);
     },
 });
 
