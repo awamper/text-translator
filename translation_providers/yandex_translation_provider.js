@@ -193,8 +193,8 @@ const Translator = new Lang.Class({
         return result;
     },
 
-    translate: function(source_lang, target_lang, text, callback) {
-        if(source_lang == 'auto') source_lang = '';
-        this.parent(source_lang, target_lang, text, callback);
-    },
+    // translate: function(source_lang, target_lang, text, callback) {
+    //     if(source_lang == 'auto') source_lang = '';
+    //     this.parent(source_lang, target_lang, text, callback);
+    // },
 });
