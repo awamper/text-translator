@@ -167,8 +167,8 @@ const Translator = new Lang.Class({
 
         let url = this.make_url(source_lang, target_lang, text);
         this._get_data_async(url, Lang.bind(this, function(result) {
-            let helper_data = this.parse_response(result);
-            callback(helper_data);
+            let data = this.parse_response(result);
+            callback(data);
         }));
     },
 });
