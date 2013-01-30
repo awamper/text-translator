@@ -11,7 +11,7 @@ const URL =
 const LIMIT = 1400;
 const MAX_QUERIES = 3;
 
-const SENTENCES_REGEXP = /\n|([^\r\n.!?]+([.!?]+|\n))/gim;
+const SENTENCES_REGEXP = /\n|([^\r\n.!?]+([.!?]+|\n|$))/gim;
 
 const Translator = new Lang.Class({
     Name: 'GoogleTranslate',
@@ -67,7 +67,6 @@ const Translator = new Lang.Class({
             }
             else {
                 temp += sentence;
-
                 if(i == (sentences.length - 1)) result.push(temp);
             }
         }
