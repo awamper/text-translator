@@ -561,6 +561,10 @@ const TextTranslatorPrefsWidget = new GObject.Class({
             'Sync entries scrolling:',
             PrefsKeys.SYNC_ENTRIES_SCROLL_KEY
         );
+        page.add_boolean(
+            'Enable shortcuts:',
+            PrefsKeys.ENABLE_SHORTCUTS_KEY
+        );
 
         let result = {
             label: page_label,

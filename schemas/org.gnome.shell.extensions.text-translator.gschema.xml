@@ -54,6 +54,10 @@
         <default>true</default>
     </key>
 
+    <key type="b" name="enable-shortcuts">
+        <default>true</default>
+    </key>
+
     <key type="b" name="show-icon">
         <default>true</default>
     </key>

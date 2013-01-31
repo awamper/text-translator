@@ -29,10 +29,15 @@ function launch_extension_prefs(uuid) {
 
 const TIMEOUT_IDS = {
     instant_translation: 0
-}
+};
 
 const TRIGGERS = {
     translate: true
+};
+
+const CONNECTION_IDS = {
+    show_icon: 0,
+    enable_shortcuts: 0
 };
 
 const INSTANT_TRANSLATION_DELAY = 900; // ms
@@ -772,7 +777,11 @@ const TranslatorExtension = new Lang.Class({
             }
         }
 
-        this._settings_icon_connect_id =
+        if(Utils.SETTINGS.get_boolean(PrefsKeys.ENABLE_SHORTCUTS_KEY)) {
+            this._add_keybindings();
+        }
+
+        CONNECTION_IDS.show_icon =
             Utils.SETTINGS.connect('changed::'+PrefsKeys.SHOW_ICON_KEY,
                 Lang.bind(this, function() {
                     let show = Utils.SETTINGS.get_boolean(PrefsKeys.SHOW_ICON_KEY);
@@ -781,8 +790,17 @@ const TranslatorExtension = new Lang.Class({
                     if(!show) this._remove_panel_button();
                 })
             );
+        CONNECTION_IDS.enable_shortcuts =
+            Utils.SETTINGS.connect('changed::'+PrefsKeys.ENABLE_SHORTCUTS_KEY,
+                Lang.bind(this, function() {
+                    let enable = Utils.SETTINGS.get_boolean(
+                        PrefsKeys.ENABLE_SHORTCUTS_KEY
+                    );
 
-        this._add_keybindings();
+                    if(enable) this._add_keybindings();
+                    else this._remove_keybindings();
+                })
+            );
     },
 
     disable: function() {
@@ -793,8 +811,12 @@ const TranslatorExtension = new Lang.Class({
         this._target_language_chooser.destroy();
         this._remove_keybindings();
 
-        if(this._settings_icon_connect_id > 0) {
-            Utils.SETTINGS.disconnect(this._settings_icon_connect_id);
+        if(CONNECTION_IDS.show_icon > 0) {
+            Utils.SETTINGS.disconnect(CONNECTION_IDS.show_icon);
+        }
+
+        if(CONNECTION_IDS.enable_shortcuts > 0) {
+            Utils.SETTINGS.disconnect(CONNECTION_IDS.enable_shortcuts);
         }
 
         if(this._panel_button !== false) {
