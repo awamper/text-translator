@@ -167,13 +167,14 @@ const TranslatorDialog = new Lang.Class({
 
         this._connection_ids = {
             source_scroll: 0,
-            target_scroll: 0
+            target_scroll: 0,
+            sync_scroll_settings: 0
         };
 
         if(Utils.SETTINGS.get_boolean(PrefsKeys.SYNC_ENTRIES_SCROLL_KEY)) {
             this.sync_entries_scroll();
         }
-        Utils.SETTINGS.connect(
+        this._connection_ids.sync_scroll_settings = Utils.SETTINGS.connect(
             'changed::'+PrefsKeys.SYNC_ENTRIES_SCROLL_KEY,
             Lang.bind(this, function() {
                 let sync = Utils.SETTINGS.get_boolean(
@@ -301,6 +302,10 @@ const TranslatorDialog = new Lang.Class({
     },
 
     destroy: function() {
+        if(this._connection_ids.sync_scroll_settings > 0) {
+            Utils.SETTINGS.disconnect(this._connection_ids.sync_scroll_settings);
+        }
+
         this._source.destroy();
         this._target.destroy();
         this._statusbar.destroy();
