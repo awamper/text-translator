@@ -141,6 +141,12 @@ const TargetEntry = new Lang.Class({
         this.actor.connect('button-press-event', Lang.bind(this, function() {
             this._clutter_text.set_editable(true);
         }));
+        this._clutter_text.connect('button-press-event',
+            Lang.bind(this, function() {
+                this._clutter_text.set_editable(true);
+                this._clutter_text.grab_key_focus();
+            })
+        );
         this._clutter_text.connect('key-focus-out', Lang.bind(this, function() {
             this._clutter_text.set_editable(false);
         }));
