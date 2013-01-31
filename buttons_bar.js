@@ -20,6 +20,8 @@ const ButtonsBarButton = new Lang.Class({
         });
         this._button_box = new St.BoxLayout();
 
+        this._sensitive = true;
+
         this._button = new St.Button({
             track_hover: params.track_hover,
             reactive: params.reactive,
@@ -29,7 +31,9 @@ const ButtonsBarButton = new Lang.Class({
         this._button.add_actor(this._button_box);
 
         if(typeof(action) == 'function') {
-            this._button.connect('clicked', Lang.bind(this, action));
+            this._button.connect('clicked', Lang.bind(this, function() {
+                if(this._sensitive) action();
+            }));
         }
 
         this._icon = false;
@@ -115,7 +119,11 @@ const ButtonsBarButton = new Lang.Class({
     get_checked: function() {
         return this.actor.get_checked();
     },
- 
+
+    set_sensitive: function(sensitive) {
+        this._sensitive = sensitive;
+    },
+
     get label_actor() {
         return this._label;
     },
