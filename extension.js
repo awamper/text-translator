@@ -37,6 +37,46 @@ const TRIGGERS = {
 
 const INSTANT_TRANSLATION_DELAY = 900; // ms
 
+const TranslatorsPopup = new Lang.Class({
+    Name: 'TranslatorsPopup',
+    Extends: PopupMenu.PopupMenu,
+
+    _init: function(button, dialog) {
+        this._button = button;
+        this._dialog = dialog;
+
+        this.parent(this._button.actor, 0, St.Side.TOP);
+        this.setSourceAlignment(0.05);
+
+        this.actor.hide();
+        Main.uiGroup.add_actor(this.actor);
+    },
+
+    add_item: function(name, action) {
+        let item = new PopupMenu.PopupMenuItem(name);
+        item.connect('activate', Lang.bind(this, function() {
+            action();
+            this.close();
+        }));
+        this.addMenuItem(item);
+    },
+
+    open: function() {
+        this._button.set_sensitive(false);
+        this._button.actor.add_style_pseudo_class('active');
+        this.parent(true);
+        this.firstMenuItem.actor.grab_key_focus();
+    },
+
+    close: function() {
+        this.parent(true);
+        this._button.set_sensitive(true);
+        this._button.actor.remove_style_pseudo_class('active');
+        this._dialog.source.grab_key_focus();
+        this.destroy();
+    }
+});
+
 const TranslatorExtension = new Lang.Class({
     Name: 'TranslatorExtension',
 
@@ -374,31 +414,19 @@ const TranslatorExtension = new Lang.Class({
                 '<u>%s</u>'.format(this._translators_manager.current.name),
                 button_params,
                 Lang.bind(this, function() {
-                    let popup = new PopupMenu.PopupMenu(
-                        button.actor,
-                        0,
-                        St.Side.TOP
-                    );
-                    Main.uiGroup.add_actor(popup.actor);
-
+                    let translators_popup = new TranslatorsPopup(button, this._dialog);
                     let names = this._translators_manager.translators_names;
 
                     for(let i = 0; i < names.length; i++) {
-                        if(names[i] === this._translators_manager.current.name) {
-                            continue;
-                        }
+                        let name = names[i];
+                        if(name === this._translators_manager.current.name) continue;
 
-                        let item = new PopupMenu.PopupMenuItem(names[i]);
-                        item.connect('activate', Lang.bind(this, function(item) {
-                            let name = item.label.get_text();
+                        translators_popup.add_item(name, Lang.bind(this, function() {
                             this._set_current_translator(name);
-                            popup.close();
-                            popup.destroy();
-                        }))
-                        popup.addMenuItem(item);
+                        }));
                     }
 
-                    popup.open(true);
+                    translators_popup.open();
                 })
             );
             let message_id;
