@@ -392,6 +392,8 @@ const TranslatorExtension = new Lang.Class({
                         item.connect('activate', Lang.bind(this, function(item) {
                             let name = item.label.get_text();
                             this._set_current_translator(name);
+                            popup.close();
+                            popup.destroy();
                         }))
                         popup.addMenuItem(item);
                     }
