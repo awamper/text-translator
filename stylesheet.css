@@ -190,3 +190,11 @@
     padding: 15px;
     color: black;
 }
+
+.translator-translators-popup-escape-label {
+    padding-left: 10px;
+    padding-top: 5px;
+    size: 5px;
+    font-style: italic;
+    color: grey;
+}

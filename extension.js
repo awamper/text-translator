@@ -53,6 +53,11 @@ const TranslatorsPopup = new Lang.Class({
         this.parent(this._button.actor, 0, St.Side.TOP);
         this.setSourceAlignment(0.05);
 
+        this._label_menu_item = new St.Label({
+            text: 'Press <Esc> to close',
+            style_class: 'translator-translators-popup-escape-label'
+        })
+
         this.actor.hide();
         Main.uiGroup.add_actor(this.actor);
     },
@@ -69,6 +74,7 @@ const TranslatorsPopup = new Lang.Class({
     open: function() {
         this._button.set_sensitive(false);
         this._button.actor.add_style_pseudo_class('active');
+        this.addActor(this._label_menu_item);
         this.parent(true);
         this.firstMenuItem.actor.grab_key_focus();
     },
