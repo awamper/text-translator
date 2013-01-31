@@ -148,6 +148,14 @@ const ButtonsBarButton = new Lang.Class({
         this._icon.icon_name;
     },
 
+    get has_icon() {
+        return this._icon !== false ? true : false;
+    },
+
+    get has_label() {
+        return this._label !== false ? true : false;
+    },
+
     get actor() {
         return this._button;
     },
@@ -190,6 +198,7 @@ const ButtonsBar = new Lang.Class({
         this.actor = new St.BoxLayout({
             style_class: this.params.style_class
         });
+        this._buttons = [];
     },
 
     new_button: function(icon_name, text, params, action) {
@@ -203,6 +212,7 @@ const ButtonsBar = new Lang.Class({
     },
 
     add_button: function(button) {
+        this._buttons.push(button);
         this.actor.add(button.actor, {
             x_fill: false,
             x_align: St.Align.START
