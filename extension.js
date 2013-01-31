@@ -148,6 +148,7 @@ const TranslatorExtension = new Lang.Class({
     _on_key_press_event: function(object, event) {
         let state = event.get_state();
         let symbol = event.get_key_symbol();
+        let code = event.get_key_code();
 
         let cyrillic_control = 8196;
         let cyrillic_shift = 8192;
@@ -164,9 +165,11 @@ const TranslatorExtension = new Lang.Class({
         }
         // ctrl+shift+c - copy translated text to clipboard
         else if(
-            state == Clutter.ModifierType.SHIFT_MASK +
-            Clutter.ModifierType.CONTROL_MASK &&
-            symbol == 67
+            (
+                state == Clutter.ModifierType.SHIFT_MASK + Clutter.ModifierType.CONTROL_MASK ||
+                state == Clutter.ModifierType.SHIFT_MASK + cyrillic_control
+            ) &&
+            code == 54
         ) {
             let text = this._dialog.target.text;
 
@@ -191,20 +194,25 @@ const TranslatorExtension = new Lang.Class({
         }
         // ctr+s - swap languages
         else if(
-            state == Clutter.ModifierType.CONTROL_MASK &&
-            symbol == 115
+            (state == Clutter.ModifierType.CONTROL_MASK || state == cyrillic_control) &&
+            code == 39
         ) {
             this._swap_languages();
         }
         // ctrl+d - reset languages to default
         else if(
-            state == Clutter.ModifierType.CONTROL_MASK &&
-            symbol == 100
+            (state == Clutter.ModifierType.CONTROL_MASK || state == cyrillic_control) &&
+            code == 40
         ) {
             this._reset_languages()
         }
         else {
-            // log(state+':'+symbol);
+            // let t = {
+            //     state: state,
+            //     symbol: symbol,
+            //     code: code
+            // };
+            // log(JSON.stringify(t, null, '\t'));
         }
     },
 
