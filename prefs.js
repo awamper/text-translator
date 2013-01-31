@@ -550,6 +550,10 @@ const TextTranslatorPrefsWidget = new GObject.Class({
         );
 
         page.add_boolean(
+            'Remember the last used translator:',
+            PrefsKeys.REMEMBER_LAST_TRANSLATOR_KEY
+        );
+        page.add_boolean(
             'Show icon:',
             PrefsKeys.SHOW_ICON_KEY
         );
@@ -557,10 +561,6 @@ const TextTranslatorPrefsWidget = new GObject.Class({
             'Sync entries scrolling:',
             PrefsKeys.SYNC_ENTRIES_SCROLL_KEY
         );
-        // page.add_boolean(
-        //     'Instant translation:',
-        //     PrefsKeys.INSTANT_TRANSLATION_KEY
-        // );
 
         let result = {
             label: page_label,

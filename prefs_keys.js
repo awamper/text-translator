@@ -6,3 +6,5 @@ const SYNC_ENTRIES_SCROLL_KEY = 'sync-entries-scrolling';
 const DEFAULT_TRANSLATOR_KEY = 'default-translator';
 const INSTANT_TRANSLATION_KEY = 'enable-instant-translation';
 const TRANSLATORS_PREFS_KEY = 'translators-prefs';
+const REMEMBER_LAST_TRANSLATOR_KEY = 'remember-last-translator';
+const LAST_TRANSLATOR_KEY = 'last-translator';

@@ -168,6 +168,17 @@ const TranslatorExtension = new Lang.Class({
         }
     },
 
+    _set_current_translator: function(name) {
+        this._translators_button.label = '<u>%s</u>'.format(name);
+
+        this._translators_manager.current = name;
+        this._dialog.source.max_length =
+            this._translators_manager.current.limit;
+        this._set_current_languages();
+
+        this._dialog.source.grab_key_focus();
+    },
+
     _set_current_source: function(lang_code) {
         this._current_source_lang = lang_code;
         this._translators_manager.current.prefs.last_source = lang_code;
@@ -380,15 +391,7 @@ const TranslatorExtension = new Lang.Class({
                         let item = new PopupMenu.PopupMenuItem(names[i]);
                         item.connect('activate', Lang.bind(this, function(item) {
                             let name = item.label.get_text();
-
-                            button.label = '<u>%s</u>'.format(name);
-
-                            this._translators_manager.current = name;
-                            this._dialog.source.max_length =
-                                this._translators_manager.current.limit;
-                            this._set_current_languages();
-
-                            this._dialog.source.grab_key_focus();
+                            this._set_current_translator(name);
                         }))
                         popup.addMenuItem(item);
                     }
@@ -694,6 +697,17 @@ const TranslatorExtension = new Lang.Class({
     },
 
     open: function() {
+        if(Utils.SETTINGS.get_boolean(PrefsKeys.REMEMBER_LAST_TRANSLATOR_KEY)) {
+            let translator =
+                this._translators_manager.last_used
+                ? this._translators_manager.last_used.name
+                : this._translators_manager.default.name;
+            this._set_current_translator(translator);
+        }
+        else {
+            this._set_current_translator(this._translators_manager.default.name);
+        }
+
         this._dialog.open();
         this._dialog.source.clutter_text.set_selection(
             0,

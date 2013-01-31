@@ -42,6 +42,14 @@
         </default>
     </key>
 
+    <key type="s" name="last-translator">
+        <default>''</default>
+    </key>
+
+    <key type="b" name="remember-last-translator">
+        <default>false</default>
+    </key>
+
     <key type="b" name="enable-instant-translation">
         <default>true</default>
     </key>

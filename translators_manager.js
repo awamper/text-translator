@@ -4,6 +4,8 @@ const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 const PrefsKeys = Me.imports.prefs_keys;
 const Utils = Me.imports.utils;
+const TranslationProviderBase =
+    Me.imports.translation_provider_base.TranslationProviderBase;
 
 const TranslatorsManager = new Lang.Class({
     Name: 'TranslatorsManager',
@@ -36,6 +38,8 @@ const TranslatorsManager = new Lang.Class({
     },
 
     get_by_name: function(name) {
+        if(Utils.is_blank(name)) return false;
+
         for(let i = 0; i < this._translators.length; i++) {
             let translator = this._translators[i];
 
@@ -51,9 +55,31 @@ const TranslatorsManager = new Lang.Class({
         return this._current;
     },
 
-    set current(name) {
-        let translator = this.get_by_name(name);
+    set current(translator_object_or_name) {
+        let name = translator_object_or_name;
+        let translator = translator_object_or_name;
+
+        if(translator_object_or_name instanceof TranslationProviderBase) {
+            name = translator_object_or_name.name;
+        }
+        else {
+            translator = this.get_by_name(name);
+        }
+
         this._current = translator;
+
+        Utils.SETTINGS.set_string(
+            PrefsKeys.LAST_TRANSLATOR_KEY,
+            name
+        );
+    },
+
+    get last_used() {
+        let name = Utils.SETTINGS.get_string(PrefsKeys.LAST_TRANSLATOR_KEY);
+        let translator = this.get_by_name(name);
+        if(!translator) return false;
+
+        return translator;
     },
 
     get default() {
