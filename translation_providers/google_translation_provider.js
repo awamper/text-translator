@@ -30,13 +30,22 @@ const Translator = new Lang.Class({
             let terms = dict_data[i].terms;
             let entry = dict_data[i].entry;
 
-            result += '<b>%s</b>\n'.format(pos);
+            if(!Utils.is_blank(pos)) {
+                result += '<b>%s</b>\n'.format(pos);
+            }
 
             for(let k = 0; k < entry.length; k++) {
-                result += '\t%s\t<span color="grey">%s</span>\n'.format(
-                    entry[k].word,
-                    entry[k].reverse_translation.join(', ')
-                );
+                if(!Utils.is_blank(pos)) result += '\t';
+
+                result += entry[k].word;
+
+                if(entry[k].reverse_translation !== undefined) {
+                    result += '\t<span color="grey">%s</span>'.format(
+                        entry[k].reverse_translation.join(', ')
+                    );
+                }
+
+                result += '\n';
             }
         }
 
