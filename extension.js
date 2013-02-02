@@ -41,7 +41,7 @@ const CONNECTION_IDS = {
     enable_shortcuts: 0
 };
 
-const INSTANT_TRANSLATION_DELAY = 900; // ms
+const INSTANT_TRANSLATION_DELAY = 1000; // ms
 
 const TranslatorPanelButton = Lang.Class({
     Name: 'TranslatorPanelButton',
