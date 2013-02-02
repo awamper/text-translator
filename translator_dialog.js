@@ -50,6 +50,19 @@ const EntryBase = new Lang.Class({
         this._clutter_text.set_line_wrap(true);
         this._clutter_text.set_line_wrap_mode(Pango.WrapMode.WORD_CHAR);
         this._clutter_text.set_max_length(0);
+        this._clutter_text.connect('key-press-event', Lang.bind(this, function(o, e) {
+            let symbol = e.get_key_symbol();
+
+            if(symbol == Clutter.Right) {
+                let sel = this._clutter_text.get_selection_bound();
+
+                if(sel === -1) {
+                   this._clutter_text.set_cursor_position(
+                        this._clutter_text.text.length
+                    );
+                }
+            }
+        }));
 
         this._box = new St.BoxLayout({
             vertical: true
