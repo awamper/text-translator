@@ -4,11 +4,9 @@
     padding: 0px 4px 0px 4px;
     border-radius: 8px;
     font-size: 13px;
-    transition-duration: 300;
 }
 
 .translator-panel-button:hover {
-    transition-duration: 300;
     background-color: white;
 }
 

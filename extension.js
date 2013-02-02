@@ -7,6 +7,7 @@ const Shell = imports.gi.Shell;
 const Meta = imports.gi.Meta;
 const Mainloop = imports.mainloop;
 const PopupMenu = imports.ui.popupMenu;
+const PanelMenu = imports.ui.panelMenu;
 
 const Me = ExtensionUtils.getCurrentExtension();
 const Utils = Me.imports.utils;
@@ -41,6 +42,123 @@ const CONNECTION_IDS = {
 };
 
 const INSTANT_TRANSLATION_DELAY = 900; // ms
+
+const TranslatorPanelButton = Lang.Class({
+    Name: 'TranslatorPanelButton',
+    Extends: PanelMenu.Button,
+
+    _init: function(translator) {
+        this.parent(0.0, 'text-translator');
+        this.actor.reactive = false;
+
+        this._clipboard = St.Clipboard.get_default();
+        this._translator = translator;
+        this._label = new St.Label({
+            text: 'T',
+            style_class: 'translator-panel-button',
+            reactive: true,
+            track_hover: true
+        });
+        this._label.connect('button-press-event', Lang.bind(this,
+            this._on_button_press
+        ));
+
+        this._add_menu_items();
+        this.actor.add_actor(this._label);
+    },
+
+    _add_menu_items: function() {
+        let menu_item;
+
+        this._item_open = new PopupMenu.PopupMenuItem('Open');
+        this._item_open.connect('activate', Lang.bind(this, function() {
+            this._translator.open();
+        }));
+        this.menu.addMenuItem(this._item_open);
+
+        this._menu_open_clipboard = new PopupMenu.PopupMenuItem('Open with clipboard');
+        this._menu_open_clipboard.label.clutter_text.set_use_markup(true);
+        this._menu_open_clipboard.connect('activate', Lang.bind(this, function() {
+            this._translator._translate_from_clipboard()
+        }));
+        this.menu.addMenuItem(this._menu_open_clipboard);
+
+        this._menu_open_selection = new PopupMenu.PopupMenuItem('Open with selection');
+        this._menu_open_selection.label.clutter_text.set_use_markup(true);
+        this._menu_open_selection.connect('activate', Lang.bind(this, function() {
+            this._translator._translate_from_selection()
+        }));
+        this.menu.addMenuItem(this._menu_open_selection);
+    },
+
+    _on_button_press: function(o, e) {
+        let button = e.get_button();
+
+        switch(button) {
+            case Clutter.BUTTON_SECONDARY:
+                this.toggle_menu();
+                break;
+            case Clutter.BUTTON_MIDDLE:
+                this._translate_selection();
+                break;
+            default:
+                this._translator.open();
+                break;
+        }
+    },
+
+    set_focus: function(focus) {
+        if(focus) {
+            this.actor.add_style_pseudo_class('active');
+        }
+        else {
+            this.actor.remove_style_pseudo_class('active');
+        }
+    },
+
+    toggle_menu: function() {
+        if(!this.menu.isOpen) {
+            this._clipboard.get_text(Lang.bind(this, function(clipboard, text) {
+                let text_length = text.trim().length;
+
+                if(text_length < 1) {
+                    this._menu_open_clipboard.setSensitive(false);
+                    this._menu_open_clipboard.label.clutter_text.set_markup(
+                        'Open with clipboard(<span size="xx-small" color="grey">' +
+                        '<i>empty</i></span>)'
+                    );
+                }
+                else {
+                    this._menu_open_clipboard.setSensitive(true);
+                    this._menu_open_clipboard.label.clutter_text.set_markup(
+                        'Open with clipboard(<span size="xx-small" color="grey">' +
+                        '<i>%s chars</i></span>)'.format(text_length)
+                    );
+                }
+            }));
+
+            let selection_text = Utils.get_primary_selection();
+            let selection_length = selection_text.trim().length;
+
+            if(selection_length < 1) {
+                this._menu_open_selection.setSensitive(false);
+                this._menu_open_selection.label.clutter_text.set_markup(
+                    'Open with selection(<span size="xx-small" color="grey">' +
+                    '<i>empty</i></span>)'
+                );
+            }
+            else {
+                this._menu_open_selection.setSensitive(true);
+                this._menu_open_selection.label.clutter_text.set_markup(
+                    'Open with selection(<span size="xx-small" color="grey">' +
+                    '<i>%s chars</i></span>)'.format(selection_length)
+                );
+            }
+        }
+
+        this.menu.toggle();
+    },
+});
 
 const TranslatorsPopup = new Lang.Class({
     Name: 'TranslatorsPopup',
@@ -139,6 +257,7 @@ const TranslatorExtension = new Lang.Class({
         ));
 
         this._set_current_languages();
+        this._panel_button = false;
     },
 
     _remove_timeouts: function(timeout_key) {
@@ -719,30 +838,17 @@ const TranslatorExtension = new Lang.Class({
     },
 
     _add_panel_button: function() {
-        let label = new St.Label({
-            text: 'T',
-            style_class: 'translator-panel-button',
-            reactive: true,
-            track_hover: true
-        });
-
-        this._panel_button = new St.Button({
-            x_fill: true,
-            y_fill: false
-        });
-        this._panel_button.add_actor(label);
-        this._panel_button.connect(
-            'button-press-event',
-            Lang.bind(this, this.open)
-        );
-
-        Main.panel._rightBox.insert_child_at_index(this._panel_button, 0);
+        if(!this._panel_button) {
+            this._panel_button = new TranslatorPanelButton(this);
+            Main.panel.addToStatusArea('text-translator', this._panel_button);
+        }
     },
 
     _remove_panel_button: function() {
-        Main.panel._rightBox.remove_child(this._panel_button);
-        this._panel_button.destroy();
-        this._panel_button = false;
+        if(this._panel_button != false) {
+            this._panel_button.destroy();
+            this._panel_button = false;
+        }
     },
 
     open: function() {
@@ -767,12 +873,15 @@ const TranslatorExtension = new Lang.Class({
         this._set_current_languages();
 
         if(this._panel_button) {
-            let label = this._panel_button.get_first_child();
-            label.remove_style_pseudo_class('hover');
+            this._panel_button.set_focus(true);
         }
     },
 
     close: function() {
+        if(this._panel_button) {
+            this._panel_button.set_focus(false);
+        }
+
         this._dialog.close();
     },
 
