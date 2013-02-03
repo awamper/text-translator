@@ -119,7 +119,11 @@ const TranslatorPanelButton = Lang.Class({
     toggle_menu: function() {
         if(!this.menu.isOpen) {
             this._clipboard.get_text(Lang.bind(this, function(clipboard, text) {
-                let text_length = text.trim().length;
+                let text_length = 0;
+
+                if(!Utils.is_blank(text)) {
+                    text_length = text.trim().length;
+                }
 
                 if(text_length < 1) {
                     this._menu_open_clipboard.setSensitive(false);
