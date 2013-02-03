@@ -1,5 +1,5 @@
 ##Text Translator
-Translation of the text by different translators (currently Google.Translate, Yandex.Translate).
+Translation of the text by different translators (currently [Google.Translate](https://translate.google.com), [Yandex.Translate](https://translate.yandex.com/)).
 
 ###Shortcuts
 &lt;Super&gt;T - open translator dialog.  
