@@ -2,12 +2,12 @@
 Translation of the text by different translators (currently Google.Translate, Yandex.Translate).
 
 ###Shortcuts
-&lt;Super&gt;T - open translator dialog.
-&lt;Super&gt;&lt;Shift&gt;T - open translator dialog and translate text from clipboard.
-&lt;Super>&lt;Alt&gt;T - open translator dialog and translate from primary selection(requires [xclip](http://xclip.sourceforge.net/)).
-&lt;Ctrl&gt;&lt;Enter&gt; - translate text.
-&lt;Ctrl&gt;&lt;Shift&gt;C - copy translated text to clipboard.
-&lt;Ctrl&gt;S - swap languages.
+&lt;Super&gt;T - open translator dialog.  
+&lt;Super&gt;&lt;Shift&gt;T - open translator dialog and translate text from clipboard.  
+&lt;Super>&lt;Alt&gt;T - open translator dialog and translate from primary selection(requires [xclip](http://xclip.sourceforge.net/)).  
+&lt;Ctrl&gt;&lt;Enter&gt; - translate text.  
+&lt;Ctrl&gt;&lt;Shift&gt;C - copy translated text to clipboard.  
+&lt;Ctrl&gt;S - swap languages.  
 &lt;Ctrl&gt;D - reset languages to default.
 ###Screenshots
 ######Dialog
