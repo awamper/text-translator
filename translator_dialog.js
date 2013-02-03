@@ -5,6 +5,7 @@ const Clutter = imports.gi.Clutter;
 const Pango = imports.gi.Pango;
 const Params = imports.misc.params;
 const Signals = imports.signals;
+const ShellEntry = imports.ui.shellEntry;
 const ExtensionUtils = imports.misc.extensionUtils;
 
 const Me = ExtensionUtils.getCurrentExtension();
@@ -43,6 +44,7 @@ const EntryBase = new Lang.Class({
         this._entry = new St.Entry({
             style_class: this.params.entry_style
         });
+        ShellEntry.addContextMenu(this._entry);
 
         this._clutter_text = this._entry.get_clutter_text();
         this._clutter_text.set_single_line_mode(false);
