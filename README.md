@@ -11,9 +11,9 @@ Translation of the text by different translators (currently Google.Translate, Ya
 &lt;Ctrl&gt;D - reset languages to default.
 ###Screenshots
 ######Dialog
-![Translator](/screenshots/1.png)
-![Translator 2](/screenshots/2.png)
-![Language chooser](/screenshots/3.png)
+![Translator](/screenshots/1.jpg)
+![Translator 2](/screenshots/2.jpg)
+![Language chooser](/screenshots/3.jpg)
 ######Settings
 ![Main settings](/screenshots/4.png)
 ![Translators settings](/screenshots/5.png)
