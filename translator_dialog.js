@@ -52,19 +52,9 @@ const EntryBase = new Lang.Class({
         this._clutter_text.set_line_wrap(true);
         this._clutter_text.set_line_wrap_mode(Pango.WrapMode.WORD_CHAR);
         this._clutter_text.set_max_length(0);
-        this._clutter_text.connect('key-press-event', Lang.bind(this, function(o, e) {
-            let symbol = e.get_key_symbol();
-
-            if(symbol == Clutter.Right) {
-                let sel = this._clutter_text.get_selection_bound();
-
-                if(sel === -1) {
-                   this._clutter_text.set_cursor_position(
-                        this._clutter_text.text.length
-                    );
-                }
-            }
-        }));
+        this._clutter_text.connect('key-press-event', Lang.bind(this, 
+            this._on_key_press_event
+        ));
 
         this._box = new St.BoxLayout({
             vertical: true
@@ -75,6 +65,58 @@ const EntryBase = new Lang.Class({
         });
 
         this.scroll.add_actor(this._box);
+    },
+
+    _on_key_press_event: function(o, e) {
+        let symbol = e.get_key_symbol();
+        let code = e.get_key_code();
+        let state = e.get_state();
+
+        let cyrillic_control = 8196;
+        let cyrillic_shift = 8192;
+
+        let control_mask =
+            state === Clutter.ModifierType.CONTROL_MASK ||
+            state === cyrillic_control;
+        let shift_mask =
+            state === Clutter.ModifierType.SHIFT_MASK ||
+            state === cyrillic_shift;
+
+        if(symbol == Clutter.Right) {
+            let sel = this._clutter_text.get_selection_bound();
+
+            if(sel === -1) {
+               this._clutter_text.set_cursor_position(
+                    this._clutter_text.text.length
+                );
+            }
+        }
+        // Ctrl+A
+        else if(control_mask && code == 38) {
+            this._clutter_text.set_selection(0, this._clutter_text.text.length);
+        }
+        // Ctrl+C
+        else if(control_mask && code == 54) {
+            let clipboard = St.Clipboard.get_default();
+            clipboard.set_text(this._clutter_text.text);
+        }
+        // Ctrl+V
+        else if(control_mask && code == 55) {
+            let clipboard = St.Clipboard.get_default();
+            clipboard.get_text(Lang.bind(this, function(clipboard, text) {
+                if(!Utils.is_blank(text)) {
+                    this._clutter_text.set_text(text);
+                }
+            }));
+        }
+        else {
+            // let t = {
+            //     state: state,
+            //     symbol: symbol,
+            //     code: code
+            // };
+            // log(JSON.stringify(t, null, '\t'));
+        }
     },
 
     destroy: function() {
