@@ -178,6 +178,17 @@ const TranslatorsPopup = new Lang.Class({
 
         this.actor.hide();
         Main.uiGroup.add_actor(this.actor);
+
+        this._dialog.source.actor.connect('button-press-event',
+            Lang.bind(this, function() {
+                if(this.isOpen) this.close(true);
+            })
+        );
+        this._dialog.target.actor.connect('button-press-event',
+            Lang.bind(this, function() {
+                if(this.isOpen) this.close(true);
+            })
+        );
     },
 
     add_item: function(name, action) {
