@@ -90,23 +90,38 @@ const EntryBase = new Lang.Class({
                     this._clutter_text.text.length
                 );
             }
+
+            return false;
         }
         // Ctrl+A
         else if(control_mask && code == 38) {
             this._clutter_text.set_selection(0, this._clutter_text.text.length);
+            return true;
         }
         // Ctrl+C
         else if(control_mask && code == 54) {
             let clipboard = St.Clipboard.get_default();
-            clipboard.set_text(this._clutter_text.text);
+            let selection = this._clutter_text.get_selection();
+            let text;
+
+            if(!Utils.is_blank(selection)) text = selection;
+            else text = this._clutter_text.text;
+
+            clipboard.set_text(text);
+            return true;
         }
         // Ctrl+V
         else if(control_mask && code == 55) {
             let clipboard = St.Clipboard.get_default();
             clipboard.get_text(Lang.bind(this, function(clipboard, text) {
                 if(!Utils.is_blank(text)) {
-                    this._clutter_text.set_text(text);
+                    this._clutter_text.set_text(
+                        this._clutter_text.text + text
+                    );
+                    return true;
                 }
+
+                return false;
             }));
         }
         else {
@@ -117,6 +132,8 @@ const EntryBase = new Lang.Class({
             // };
             // log(JSON.stringify(t, null, '\t'));
         }
+
+        return false;
     },
 
     destroy: function() {
