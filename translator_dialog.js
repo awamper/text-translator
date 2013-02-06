@@ -76,10 +76,10 @@ const EntryBase = new Lang.Class({
         let cyrillic_shift = 8192;
 
         let control_mask =
-            state === Clutter.ModifierType.CONTROL_MASK ||
+            // state === Clutter.ModifierType.CONTROL_MASK ||
             state === cyrillic_control;
         let shift_mask =
-            state === Clutter.ModifierType.SHIFT_MASK ||
+            // state === Clutter.ModifierType.SHIFT_MASK ||
             state === cyrillic_shift;
 
         if(symbol == Clutter.Right) {
@@ -93,12 +93,12 @@ const EntryBase = new Lang.Class({
 
             return false;
         }
-        // Ctrl+A
+        // cyrillic Ctrl+A
         else if(control_mask && code == 38) {
             this._clutter_text.set_selection(0, this._clutter_text.text.length);
             return true;
         }
-        // Ctrl+C
+        // cyrillic Ctrl+C
         else if(control_mask && code == 54) {
             let clipboard = St.Clipboard.get_default();
             let selection = this._clutter_text.get_selection();
@@ -110,11 +110,12 @@ const EntryBase = new Lang.Class({
             clipboard.set_text(text);
             return true;
         }
-        // Ctrl+V
+        // cyrillic Ctrl+V
         else if(control_mask && code == 55) {
             let clipboard = St.Clipboard.get_default();
             clipboard.get_text(Lang.bind(this, function(clipboard, text) {
                 if(!Utils.is_blank(text)) {
+                    this._clutter_text.delete_selection();
                     this._clutter_text.set_text(
                         this._clutter_text.text + text
                     );
