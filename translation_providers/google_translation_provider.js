@@ -123,6 +123,7 @@ const Translator = new Lang.Class({
             }
         }
 
+        result = Utils.escape_html(result);
         return result;
     },
 
