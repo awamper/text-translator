@@ -121,9 +121,9 @@ const Translator = new Lang.Class({
             for(let i = 0; i < json.sentences.length; i++) {
                 result += json.sentences[i].trans;
             }
+            result = Utils.escape_html(result);
         }
 
-        result = Utils.escape_html(result);
         return result;
     },
 
