@@ -351,6 +351,10 @@ const TranslatorExtension = new Lang.Class({
         ) {
             this._reset_languages()
         }
+        // Super - close
+        else if(symbol == Clutter.KEY_Super_L || symbol == Clutter.KEY_Super_R) {
+            this.close();
+        }
         else {
             // let t = {
             //     state: state,
