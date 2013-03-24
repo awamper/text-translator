@@ -124,24 +124,6 @@ function get_files_in_dir(path) {
     return result;
 }
 
-function get_primary_selection() {
-    let result = '';
-
-    try {
-        let r = GLib.spawn_command_line_sync('xclip -o');
-        let selection = r[1].toString().trim();
-
-        if(r[0] == true && !is_blank(selection)) {
-            result = selection;
-        }
-    }
-    catch(e) {
-        result = '';
-    }
-
-    return result;
-}
-
 function get_unichar(keyval) {
     let ch = Clutter.keysym_to_unicode(keyval);
 

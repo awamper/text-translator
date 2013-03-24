@@ -43,7 +43,7 @@ const CONNECTION_IDS = {
 
 const INSTANT_TRANSLATION_DELAY = 1000; // ms
 
-const TranslatorPanelButton = Lang.Class({
+const TranslatorPanelButton = new Lang.Class({
     Name: 'TranslatorPanelButton',
     Extends: PanelMenu.Button,
 
@@ -51,7 +51,6 @@ const TranslatorPanelButton = Lang.Class({
         this.parent(0.0, 'text-translator');
         this.actor.reactive = false;
 
-        this._clipboard = St.Clipboard.get_default();
         this._translator = translator;
         this._label = new St.Label({
             text: 'T',
@@ -79,14 +78,14 @@ const TranslatorPanelButton = Lang.Class({
         this._menu_open_clipboard = new PopupMenu.PopupMenuItem('Open with clipboard');
         this._menu_open_clipboard.label.clutter_text.set_use_markup(true);
         this._menu_open_clipboard.connect('activate', Lang.bind(this, function() {
-            this._translator._translate_from_clipboard()
+            this._translator._translate_from_clipboard(St.ClipboardType.CLIPBOARD);
         }));
         this.menu.addMenuItem(this._menu_open_clipboard);
 
         this._menu_open_selection = new PopupMenu.PopupMenuItem('Open with selection');
         this._menu_open_selection.label.clutter_text.set_use_markup(true);
         this._menu_open_selection.connect('activate', Lang.bind(this, function() {
-            this._translator._translate_from_selection()
+            this._translator._translate_from_clipboard(St.ClipboardType.PRIMARY);
         }));
         this.menu.addMenuItem(this._menu_open_selection);
     },
@@ -99,7 +98,7 @@ const TranslatorPanelButton = Lang.Class({
                 this.toggle_menu();
                 break;
             case Clutter.BUTTON_MIDDLE:
-                this._translate_selection();
+                this._translator._translate_from_clipboard(St.ClipboardType.PRIMARY);
                 break;
             default:
                 this._translator.open();
@@ -118,46 +117,57 @@ const TranslatorPanelButton = Lang.Class({
 
     toggle_menu: function() {
         if(!this.menu.isOpen) {
-            this._clipboard.get_text(Lang.bind(this, function(clipboard, text) {
-                let text_length = 0;
+            let clipboard = St.Clipboard.get_default();
 
-                if(!Utils.is_blank(text)) {
-                    text_length = text.trim().length;
-                }
+            clipboard.get_text(St.ClipboardType.CLIPBOARD,
+                Lang.bind(this, function(clipboard, text) {
+                    let text_length = 0;
 
-                if(text_length < 1) {
-                    this._menu_open_clipboard.setSensitive(false);
-                    this._menu_open_clipboard.label.clutter_text.set_markup(
-                        'Open with clipboard(<span size="xx-small" color="grey">' +
-                        '<i>empty</i></span>)'
+                    if(!Utils.is_blank(text)) {
+                        text_length = text.trim().length;
+                    }
+
+                    if(text_length < 1) {
+                        this._menu_open_clipboard.setSensitive(false);
+                        this._menu_open_clipboard.label.clutter_text.set_markup(
+                            'Translate from clipboard(<span size="xx-small" color="grey">' +
+                            '<i>empty</i></span>)'
+                        );
+                    }
+                    else {
+                        this._menu_open_clipboard.setSensitive(true);
+                        this._menu_open_clipboard.label.clutter_text.set_markup(
+                            'Translate from clipboard(<span size="xx-small" color="grey">' +
+                            '<i>%s chars</i></span>)'.format(text_length)
+                        );
+                    }
+
+                    clipboard.get_text(St.ClipboardType.PRIMARY,
+                        Lang.bind(this, function(clipboard, selection_text) {
+                            let selection_length = 0;
+
+                            if(!Utils.is_blank(selection_text)) {
+                                selection_length = selection_text.trim().length;
+                            }
+
+                            if(selection_length < 1) {
+                                this._menu_open_selection.setSensitive(false);
+                                this._menu_open_selection.label.clutter_text.set_markup(
+                                    'Open with selection(<span size="xx-small" color="grey">' +
+                                    '<i>empty</i></span>)'
+                                );
+                            }
+                            else {
+                                this._menu_open_selection.setSensitive(true);
+                                this._menu_open_selection.label.clutter_text.set_markup(
+                                    'Open with selection(<span size="xx-small" color="grey">' +
+                                    '<i>%s chars</i></span>)'.format(selection_length)
+                                );
+                            }
+                        })
                     );
                 }
-                else {
-                    this._menu_open_clipboard.setSensitive(true);
-                    this._menu_open_clipboard.label.clutter_text.set_markup(
-                        'Open with clipboard(<span size="xx-small" color="grey">' +
-                        '<i>%s chars</i></span>)'.format(text_length)
-                    );
-                }
-            }));
-
-            let selection_text = Utils.get_primary_selection();
-            let selection_length = selection_text.trim().length;
-
-            if(selection_length < 1) {
-                this._menu_open_selection.setSensitive(false);
-                this._menu_open_selection.label.clutter_text.set_markup(
-                    'Open with selection(<span size="xx-small" color="grey">' +
-                    '<i>empty</i></span>)'
-                );
-            }
-            else {
-                this._menu_open_selection.setSensitive(true);
-                this._menu_open_selection.label.clutter_text.set_markup(
-                    'Open with selection(<span size="xx-small" color="grey">' +
-                    '<i>%s chars</i></span>)'.format(selection_length)
-                );
-            }
+            ));
         }
 
         this.menu.toggle();
@@ -328,7 +338,7 @@ const TranslatorExtension = new Lang.Class({
             }
             else {
                 let clipboard = St.Clipboard.get_default();
-                clipboard.set_text(text);
+                clipboard.set_text(St.ClipboardType.CLIPBOARD, text);
                 this._dialog.statusbar.add_message(
                     'Translated text copied to clipboard.',
                     1500,
@@ -782,11 +792,11 @@ const TranslatorExtension = new Lang.Class({
         );
     },
 
-    _translate_from_clipboard: function() {
+    _translate_from_clipboard: function(clipboard_type) {
         this.open();
 
         let clipboard = St.Clipboard.get_default();
-        clipboard.get_text(Lang.bind(this, function(clipboard, text) {
+        clipboard.get_text(clipboard_type, Lang.bind(this, function(clipboard, text) {
             if(Utils.is_blank(text)) {
                 this._dialog.statusbar.add_message(
                     'Clipboard is empty.',
@@ -800,60 +810,51 @@ const TranslatorExtension = new Lang.Class({
             TRIGGERS.translate = false;
             this._dialog.source.text = text;
             this._translate();
-        }))
-    },
-
-    _translate_from_selection: function() {
-        this.open();
-
-        let text = Utils.get_primary_selection();
-
-        if(Utils.is_blank(text)) {
-            this._dialog.statusbar.add_message(
-                'Primary selection is empty.',
-                2000,
-                StatusBar.MESSAGE_TYPES.error,
-                false
-            );
-            return;
-        }
-
-        TRIGGERS.translate = false;
-        this._dialog.source.text = text;
-        this._translate();
+        }));
     },
 
     _add_keybindings: function() {
-        global.display.add_keybinding(
+        Main.wm.addKeybinding(
             PrefsKeys.OPEN_TRANSLATOR_KEY,
             Utils.SETTINGS,
             Meta.KeyBindingFlags.NONE,
+            Shell.KeyBindingMode.NORMAL |
+            Shell.KeyBindingMode.MESSAGE_TRAY |
+            Shell.KeyBindingMode.OVERVIEW,
             Lang.bind(this, function() {
                 this.open();
             })
         );
-        global.display.add_keybinding(
+
+        Main.wm.addKeybinding(
             PrefsKeys.TRANSLATE_FROM_CLIPBOARD_KEY,
             Utils.SETTINGS,
             Meta.KeyBindingFlags.NONE,
+            Shell.KeyBindingMode.NORMAL |
+            Shell.KeyBindingMode.MESSAGE_TRAY |
+            Shell.KeyBindingMode.OVERVIEW,
             Lang.bind(this, function() {
-                this._translate_from_clipboard();
+                this._translate_from_clipboard(St.ClipboardType.CLIPBOARD);
             })
         );
-        global.display.add_keybinding(
+
+        Main.wm.addKeybinding(
             PrefsKeys.TRANSLATE_FROM_SELECTION_KEY,
             Utils.SETTINGS,
             Meta.KeyBindingFlags.NONE,
+            Shell.KeyBindingMode.NORMAL |
+            Shell.KeyBindingMode.MESSAGE_TRAY |
+            Shell.KeyBindingMode.OVERVIEW,
             Lang.bind(this, function() {
-                this._translate_from_selection();
+                this._translate_from_clipboard(St.ClipboardType.PRIMARY);
             })
         );
     },
 
     _remove_keybindings: function() {
-        global.display.remove_keybinding(PrefsKeys.OPEN_TRANSLATOR_KEY);
-        global.display.remove_keybinding(PrefsKeys.TRANSLATE_FROM_CLIPBOARD_KEY)
-        global.display.remove_keybinding(PrefsKeys.TRANSLATE_FROM_SELECTION_KEY);
+        Main.wm.removeKeybinding(PrefsKeys.OPEN_TRANSLATOR_KEY);
+        Main.wm.removeKeybinding(PrefsKeys.TRANSLATE_FROM_CLIPBOARD_KEY)
+        Main.wm.removeKeybinding(PrefsKeys.TRANSLATE_FROM_SELECTION_KEY);
     },
 
     _add_panel_button: function() {

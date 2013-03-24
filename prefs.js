@@ -597,7 +597,7 @@ const TextTranslatorPrefsWidget = new GObject.Class({
         keybindings[PrefsKeys.TRANSLATE_FROM_CLIPBOARD_KEY] =
             'Translate from clipboard';
         keybindings[PrefsKeys.TRANSLATE_FROM_SELECTION_KEY] = 
-            'Translate from primary selection(requires xclip)';
+            'Translate from primary selection';
 
         let page = new TranslatorKeybindingsWidget(keybindings);
 
