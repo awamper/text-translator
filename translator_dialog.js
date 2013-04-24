@@ -234,7 +234,8 @@ const TranslatorDialog = new Lang.Class({
 
     _init: function() {
         this.parent({
-            shellReactive: false
+            shellReactive: false,
+            destroyOnClose: false
         });
 
         this._dialogLayout = 
