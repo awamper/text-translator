@@ -83,7 +83,7 @@ const StatusBar = new Lang.Class({
         });
         this._message_label = new St.Label();
         this._message_label.get_clutter_text().use_markup = true;
-        this._spinner = new Panel.AnimatedIcon(
+        this._spinner = new Panel.Animation.AnimatedIcon(
             'process-working.svg',
             24
         );

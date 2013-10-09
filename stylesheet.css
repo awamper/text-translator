@@ -1,15 +1,3 @@
-.translator-panel-button {
-    background-color: #ccc;
-    color: black;
-    padding: 0px 4px 0px 4px;
-    border-radius: 8px;
-    font-size: 13px;
-}
-
-.translator-panel-button:hover {
-    background-color: white;
-}
-
 .translator-box {
     background-color: rgba(0, 0, 0, 0.9);
     width: 1200px;

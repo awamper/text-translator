@@ -52,18 +52,18 @@ const TranslatorPanelButton = new Lang.Class({
         this.actor.reactive = false;
 
         this._translator = translator;
-        this._label = new St.Label({
-            text: 'T',
-            style_class: 'translator-panel-button',
+        this._icon = new St.Icon({
+            icon_name: 'insert-text-symbolic',
+            style_class: 'system-status-icon',
             reactive: true,
             track_hover: true
         });
-        this._label.connect('button-press-event', Lang.bind(this,
+        this._icon.connect('button-press-event', Lang.bind(this,
             this._on_button_press
         ));
 
         this._add_menu_items();
-        this.actor.add_actor(this._label);
+        this.actor.add_actor(this._icon);
     },
 
     _add_menu_items: function() {
@@ -217,7 +217,7 @@ const TranslatorsPopup = new Lang.Class({
     open: function() {
         this._button.set_sensitive(false);
         this._button.actor.add_style_pseudo_class('active');
-        this.addActor(this._label_menu_item);
+        this.box.add(this._label_menu_item);
         this.parent(true);
         this.firstMenuItem.actor.grab_key_focus();
     },
@@ -228,6 +228,16 @@ const TranslatorsPopup = new Lang.Class({
         this._button.actor.remove_style_pseudo_class('active');
         this._dialog.source.grab_key_focus();
         this.destroy();
+    },
+
+    destroy: function() {
+        this.removeAll();
+        this.actor.destroy();
+
+        this.emit('destroy');
+
+        Main.sessionMode.disconnect(this._sessionUpdatedId);
+        this._sessionUpdatedId = 0;
     }
 });
 

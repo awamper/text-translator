@@ -15,7 +15,7 @@ const LanguageChooser = new Lang.Class({
     Extends: ModalDialog.ModalDialog,
 
     _init: function(title, languages) {
-        this.parent();
+        this.parent({destroyOnClose: false});
 
         this._dialogLayout = 
             typeof this.dialogLayout === "undefined"
