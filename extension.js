@@ -228,6 +228,16 @@ const TranslatorsPopup = new Lang.Class({
         this._button.actor.remove_style_pseudo_class('active');
         this._dialog.source.grab_key_focus();
         this.destroy();
+    },
+
+    destroy: function() {
+        this.removeAll();
+        this.actor.destroy();
+
+        this.emit('destroy');
+
+        Main.sessionMode.disconnect(this._sessionUpdatedId);
+        this._sessionUpdatedId = 0;
     }
 });
 
