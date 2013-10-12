@@ -605,6 +605,17 @@ const TextTranslatorPrefsWidget = new GObject.Class({
             PrefsKeys.ENABLE_SHORTCUTS_KEY
         );
 
+        let spin_properties = {
+            lower: 5,
+            upper: 30,
+            step_increment: 1
+        };
+        page.add_spin(
+            'Font size:',
+            PrefsKeys.FONT_SIZE_KEY,
+            spin_properties
+        )
+
         let result = {
             label: page_label,
             page: page

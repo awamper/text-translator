@@ -74,5 +74,9 @@
         <default>60</default>
     </key>
 
+    <key type="i" name="font-size">
+        <default>15</default>
+    </key>
+
   </schema>
 </schemalist>
