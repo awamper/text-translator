@@ -493,6 +493,43 @@ const TranslatorPrefsGrid = new GObject.Class({
         this._rownum++;
 
         return widget;
+    },
+
+    add_range: function(label, key, range_properties) {
+        range_properties = Params.parse(range_properties, {
+            min: 0,
+            max: 100,
+            step: 10,
+            mark_position: 0,
+            add_mark: false,
+            size: 200,
+            draw_value: true
+        });
+
+        let range = Gtk.Scale.new_with_range(
+            Gtk.Orientation.HORIZONTAL,
+            range_properties.min,
+            range_properties.max,
+            range_properties.step
+        );
+        range.set_value(this._settings.get_int(key));
+        range.set_draw_value(range_properties.draw_value);
+
+        if(range_properties.add_mark) {
+            range.add_mark(
+                range_properties.mark_position,
+                Gtk.PositionType.BOTTOM,
+                null
+            );
+        }
+
+        range.set_size_request(range_properties.size, -1);
+
+        range.connect('value-changed', Lang.bind(this, function(slider) {
+            this._settings.set_int(key, slider.get_value());
+        }));
+
+        return this.add_row(label, range, true);
     }
 });
 
@@ -507,6 +544,7 @@ const TextTranslatorPrefsWidget = new GObject.Class({
 
         let main_page = this._get_main_page();
         let providers_page = this._get_providers_page();
+        let size_page = this._get_size_page();
         let keybindings_page = this._get_keybindings_page();
 
         let notebook = new Gtk.Notebook({
@@ -519,6 +557,7 @@ const TextTranslatorPrefsWidget = new GObject.Class({
 
         notebook.append_page(main_page.page, main_page.label);
         notebook.append_page(providers_page.page, providers_page.label);
+        notebook.append_page(size_page.page, size_page.label);
         notebook.append_page(keybindings_page.page, keybindings_page.label);
 
         this.add(notebook);
@@ -578,6 +617,36 @@ const TextTranslatorPrefsWidget = new GObject.Class({
             label: 'Translators'
         });
         let page = new TranslatorProvidersWidget();
+
+        let result = {
+            label: page_label,
+            page: page
+        };
+        return result;
+    },
+
+    _get_size_page: function() {
+        let page_label = new Gtk.Label({
+            label: 'Size'
+        });
+        let page = new TranslatorPrefsGrid();
+
+        let range_properties = {
+            min: 10,
+            max: 100,
+            step: 10,
+            size: 300
+        };
+        page.add_range(
+            'Width (% of screen):',
+            PrefsKeys.WIDTH_PERCENTS_KEY,
+            range_properties
+        )
+        page.add_range(
+            'Height (% of screen):',
+            PrefsKeys.HEIGHT_PERCENTS_KEY,
+            range_properties
+        )
 
         let result = {
             label: page_label,

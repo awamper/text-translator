@@ -66,5 +66,13 @@
         <default>false</default>
     </key>
 
+    <key type="i" name="width-percents">
+        <default>80</default>
+    </key>
+
+    <key type="i" name="height-percents">
+        <default>60</default>
+    </key>
+
   </schema>
 </schemalist>

@@ -1,5 +1,6 @@
 const St = imports.gi.St;
 const Lang = imports.lang;
+const Main = imports.ui.main;
 const ModalDialog = imports.ui.modalDialog;
 const Clutter = imports.gi.Clutter;
 const Signals = imports.signals;
@@ -7,6 +8,7 @@ const ExtensionUtils = imports.misc.extensionUtils;
 
 const Me = ExtensionUtils.getCurrentExtension();
 const Utils = Me.imports.utils;
+const PrefsKeys = Me.imports.prefs_keys;
 
 const COLUMNS = 4;
 
@@ -190,6 +192,30 @@ const LanguageChooser = new Lang.Class({
         return button;
     },
 
+    _resize: function() {
+        let width_percents = Utils.SETTINGS.get_int(PrefsKeys.WIDTH_PERCENTS_KEY);
+        let height_percents = Utils.SETTINGS.get_int(PrefsKeys.HEIGHT_PERCENTS_KEY);
+        let primary = Main.layoutManager.primaryMonitor;
+
+        let translator_width = Math.round(primary.width / 100 * width_percents);
+        let translator_height = Math.round(primary.height / 100 * height_percents);
+
+        let chooser_width = Math.round(translator_width * 0.9);
+        let chooser_height = Math.round(translator_height * 0.9);
+        this._dialogLayout.set_width(chooser_width);
+        this._dialogLayout.set_height(chooser_height);
+
+        let scroll_width = Math.round(chooser_width * 0.9);
+        let scroll_height = Math.round(
+            chooser_height
+            - this._title.height
+            - this._info_label.height
+            - this._dialogLayout.get_theme_node().get_padding(St.Side.BOTTOM) * 3
+        );
+        this._scroll.set_width(scroll_width);
+        this._scroll.set_height(scroll_height);
+    },
+
     show_languages: function(selected_language_code, list) {
         let row = 0;
         let column = 0;
@@ -231,6 +257,11 @@ const LanguageChooser = new Lang.Class({
         this._search_entry.set_text('');
         this._search_entry.hide();
         this.parent();
+    },
+
+    open: function() {
+        this._resize()
+        this.parent()
     },
 });
 Signals.addSignalMethods(LanguageChooser.prototype);
