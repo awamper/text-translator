@@ -4,11 +4,14 @@ const Extension = imports.misc.extensionUtils.get_text_translator_extension();
 const TranslationProviderBase = Extension.imports.translation_provider_base;
 const Utils = Extension.imports.utils;
 
+const KEY =
+    'trnsl.1.1.20131012T133604Z.058afe97adb43930.' +
+    '4289d5089e7cf72449ffcefc1c623e76f5f281dd';
 const NAME = 'Yandex.Translate';
 const LIMIT = 9800;
 const URL =
-    'https://translate.yandex.net/api/v1/tr.json/' +
-    'translate?lang=%s-%s&text=%s';
+    'https://translate.yandex.net/api/v1.5/tr.json/' +
+    'translate?key=' + KEY + '&lang=%s-%s&text=%s';
 
 const LANGUAGE_PAIRS = [
     "ru-en",
