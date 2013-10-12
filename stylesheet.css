@@ -1,29 +1,22 @@
 .translator-box {
     background-color: rgba(0, 0, 0, 0.9);
-    width: 1200px;
-    height: 400px;
-    padding: 15px;
 }
 
 .translator-entry {
     caret-color: rgb(255, 0, 0);
     caret-size: 2px;
     selected-color: black;
-    padding: 5px;
+    padding: 3px;
 }
 
 .translator-source-text-box {
     font-size: 15px;
-    width: 590px;
-    height: 300px;
     background-color: rgba(0, 0, 0, 0.7);
     border: 1px solid rgba(255, 255, 255, 0.5);
 }
 
 .translator-target-text-box {
     font-size: 15px;
-    width: 590px;
-    height: 300px;
     background-color: rgba(255, 255, 255, 0.3);
 }
 
@@ -110,16 +103,12 @@
 }
 
 .translator-language-chooser {
-    width: 850px;
-    height: 400px;
     background-color: rgba(255, 255, 255, 0.8);
     padding: 10px;
 }
 
 .translator-language-chooser-box {
     border: 1px solid rgba(64, 64, 64, 0.5);
-    width: 800px;
-    height: 340px;
 }
 
 .translator-language-chooser-title {
@@ -166,8 +155,6 @@
 }
 
 .translator-help-box {
-    width: 650px;
-    height: 350px;
     background-color: rgba(255, 255, 255, 0.7);
 }
 

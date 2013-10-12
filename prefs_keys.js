@@ -9,3 +9,5 @@ const TRANSLATORS_PREFS_KEY = 'translators-prefs';
 const REMEMBER_LAST_TRANSLATOR_KEY = 'remember-last-translator';
 const LAST_TRANSLATOR_KEY = 'last-translator';
 const ENABLE_SHORTCUTS_KEY = 'enable-shortcuts';
+const WIDTH_PERCENTS_KEY = 'width-percents';
+const HEIGHT_PERCENTS_KEY = 'height-percents';

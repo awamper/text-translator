@@ -1,5 +1,6 @@
 const St = imports.gi.St;
 const Lang = imports.lang;
+const Main = imports.ui.main;
 const ModalDialog = imports.ui.modalDialog;
 const Clutter = imports.gi.Clutter;
 const Pango = imports.gi.Pango;
@@ -38,7 +39,8 @@ const EntryBase = new Lang.Class({
         );
         this.actor.add(this.scroll, {
             x_fill: true,
-            y_fill: true
+            y_fill: true,
+            expand: true
         });
 
         this._entry = new St.Entry({
@@ -143,6 +145,11 @@ const EntryBase = new Lang.Class({
 
     grab_key_focus: function() {
         this._clutter_text.grab_key_focus();
+    },
+
+    set_size: function(width, height) {
+        this.scroll.set_width(width);
+        this.scroll.set_height(height);
     },
 
     get entry() {
@@ -325,6 +332,29 @@ const TranslatorDialog = new Lang.Class({
         this.contentLayout.add_actor(table);
     },
 
+    _resize: function() {
+        let width_percents = Utils.SETTINGS.get_int(PrefsKeys.WIDTH_PERCENTS_KEY);
+        let height_percents = Utils.SETTINGS.get_int(PrefsKeys.HEIGHT_PERCENTS_KEY);
+        let primary = Main.layoutManager.primaryMonitor;
+
+        let box_width = Math.round(primary.width / 100 * width_percents);
+        let box_height = Math.round(primary.height / 100 * height_percents);
+        this._dialogLayout.set_width(box_width);
+        this._dialogLayout.set_height(box_height);
+
+        let text_box_width = Math.round(
+            box_width / 2
+            - this._source.entry.get_theme_node().get_padding(St.Side.LEFT) * 4
+        );
+        let text_box_height =
+            box_height
+            - this._topbar.actor.height
+            - this._chars_counter.actor.height
+            - this._bottombar.actor.height;
+        this._source.set_size(text_box_width, text_box_height);
+        this._target.set_size(text_box_width, text_box_height)
+    },
+
     sync_entries_scroll: function() {
         if(this._connection_ids.source_scroll < 1) {
             let source_v_adjust = this._source.scroll.vscroll.adjustment;
@@ -376,6 +406,11 @@ const TranslatorDialog = new Lang.Class({
             target_v_adjust.disconnect(this._connection_ids.target_scroll);
             this._connection_ids.target_scroll = 0;
         }
+    },
+
+    open: function() {
+        this._resize()
+        this.parent()
     },
 
     close: function() {
