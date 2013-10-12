@@ -11,3 +11,4 @@ const LAST_TRANSLATOR_KEY = 'last-translator';
 const ENABLE_SHORTCUTS_KEY = 'enable-shortcuts';
 const WIDTH_PERCENTS_KEY = 'width-percents';
 const HEIGHT_PERCENTS_KEY = 'height-percents';
+const FONT_SIZE_KEY = 'font-size';

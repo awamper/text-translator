@@ -57,6 +57,14 @@ const EntryBase = new Lang.Class({
         this._clutter_text.connect('key-press-event', Lang.bind(this, 
             this._on_key_press_event
         ));
+        this.set_font_size(Utils.SETTINGS.get_int(PrefsKeys.FONT_SIZE_KEY));
+
+        this._font_connection_id = Utils.SETTINGS.connect(
+            "changed::" + PrefsKeys.FONT_SIZE_KEY,
+            Lang.bind(this, function() {
+                this.set_font_size(Utils.SETTINGS.get_int(PrefsKeys.FONT_SIZE_KEY));
+            })
+        );
 
         this._box = new St.BoxLayout({
             vertical: true
@@ -140,6 +148,10 @@ const EntryBase = new Lang.Class({
     },
 
     destroy: function() {
+        if(this._font_connection_id > 0) {
+            Utils.SETTINGS.disconnect(this._font_connection_id);
+        }
+
         this.actor.destroy();
     },
 
@@ -150,6 +162,11 @@ const EntryBase = new Lang.Class({
     set_size: function(width, height) {
         this.scroll.set_width(width);
         this.scroll.set_height(height);
+    },
+
+    set_font_size: function(size) {
+        let style_string = "font-size: %spx".format(size);
+        this.entry.set_style(style_string);
     },
 
     get entry() {
