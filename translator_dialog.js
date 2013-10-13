@@ -349,6 +349,13 @@ const TranslatorDialog = new Lang.Class({
         this.contentLayout.add_actor(table);
     },
 
+    _get_statusbar_height: function() {
+        let message_id = this._statusbar.add_message('Sample message 1.');
+        let result = this._statusbar.actor.get_preferred_height(-1)[1];
+        this._statusbar.remove_message(message_id);
+        return result;
+    },
+
     _resize: function() {
         let width_percents = Utils.SETTINGS.get_int(PrefsKeys.WIDTH_PERCENTS_KEY);
         let height_percents = Utils.SETTINGS.get_int(PrefsKeys.HEIGHT_PERCENTS_KEY);
@@ -367,7 +374,7 @@ const TranslatorDialog = new Lang.Class({
             box_height
             - this._topbar.actor.height
             - this._chars_counter.actor.height
-            - this._bottombar.actor.height;
+            - Math.max(this._get_statusbar_height(), this._bottombar.actor.height);
         this._source.set_size(text_box_width, text_box_height);
         this._target.set_size(text_box_width, text_box_height)
     },
@@ -426,8 +433,8 @@ const TranslatorDialog = new Lang.Class({
     },
 
     open: function() {
-        this._resize()
-        this.parent()
+        this.parent();
+        this._resize();
     },
 
     close: function() {
