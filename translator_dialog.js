@@ -453,7 +453,7 @@ const TranslatorDialog = new Lang.Class({
         this._source.destroy();
         this._target.destroy();
         this._statusbar.destroy();
-        this._bottombar.destroy();
+        this._dialog_menu.destroy();
         this._topbar.destroy();
         this._chars_counter.destroy();
         this.parent();
