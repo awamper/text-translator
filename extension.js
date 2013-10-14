@@ -435,6 +435,7 @@ const TranslatorExtension = new Lang.Class({
         this._set_current_source(target);
         this._set_current_target(source);
         this._current_langs_changed();
+        this._translate();
     },
 
     _reset_languages: function() {
@@ -453,12 +454,14 @@ const TranslatorExtension = new Lang.Class({
         this._set_current_source(language.code);
         this._current_langs_changed();
         this._source_language_chooser.close();
+        this._translate();
     },
 
     _on_target_language_chose: function(object, language) {
         this._set_current_target(language.code);
         this._current_langs_changed();
         this._target_language_chooser.close();
+        this._translate();
     },
 
     _current_langs_changed: function() {
