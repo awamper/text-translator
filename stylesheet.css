@@ -30,7 +30,7 @@
 }
 
 .translator-buttons-bar-icon {
-    icon-size: 24px;
+    icon-size: 14px;
 }
 
 .translator-top-bar-box {
@@ -72,31 +72,31 @@
     background-color: rgba(0, 0, 255, 1);
 }
 
-.translator-bottom-button {
+.translator-dialog-menu-button {
     padding-right: 4px;
     padding-top: 2px;
     color: rgba(64, 64, 64, 1);
 }
 
-.translator-bottom-button:hover {
+.translator-dialog-menu-button:hover {
     color: rgba(255, 64, 64, 1);
 }
 
-.translator-bottom-button:active {
+.translator-dialog-menu-button:active {
     color: rgba(255, 0, 0, 1);
 }
 
-.translator-bottom-toggle-button {
+.translator-dialog-menu-toggle-button {
     padding-right: 4px;
     padding-top: 2px;
     color: rgba(64, 64, 64, 1);
 }
 
-.translator-bottom-toggle-button:hover {
+.translator-dialog-menu-toggle-button:hover {
     color: rgba(64, 255, 64, 1);
 }
 
-.translator-bottom-toggle-button:active {
+.translator-dialog-menu-toggle-button:active {
     color: rgba(0, 255, 0, 1);
 }
 

@@ -13,6 +13,7 @@ const Me = ExtensionUtils.getCurrentExtension();
 const Utils = Me.imports.utils;
 const TranslatorDialog = Me.imports.translator_dialog;
 const StatusBar = Me.imports.status_bar;
+const ButtonsBar = Me.imports.buttons_bar;
 const LanguageChooser = Me.imports.language_chooser;
 const TranslatorsManager = Me.imports.translators_manager;
 const PrefsKeys = Me.imports.prefs_keys;
@@ -275,7 +276,7 @@ const TranslatorExtension = new Lang.Class({
             this._translators_manager.current.limit;
 
         this._add_topbar_buttons();
-        this._add_bottombar_buttons();
+        this._add_dialog_menu_buttons();
 
         this._source_language_chooser = new LanguageChooser.LanguageChooser(
             'Choose source language:'
@@ -477,15 +478,17 @@ const TranslatorExtension = new Lang.Class({
 
     _get_source_lang_button: function() {
         let button_params = {
-            style_class: 'tranlator-top-bar-button-reactive'
+            style_class: 'tranlator-top-bar-button-reactive',
+            statusbar: this._dialog.statusbar
         };
-        let button = this._dialog.topbar.new_button(
+        let button = new ButtonsBar.ButtonsBarButton(
             false,
             '<u>From: %s</u>'.format(
                 this._translators_manager.current.get_language_name(
                     this._current_source_lang
                 )
             ),
+            'Choose source language',
             button_params,
             Lang.bind(this, function() {
                 this._source_language_chooser.open();
@@ -497,31 +500,23 @@ const TranslatorExtension = new Lang.Class({
                 );
             })
         );
-        let message_id;
-
-        button.connect('enter-event', Lang.bind(this, function() {
-            message_id = this._dialog.statusbar.add_message(
-                'Choose source language'
-            );
-        }));
-        button.connect('leave-event', Lang.bind(this, function() {
-            this._dialog.statusbar.remove_message(message_id);
-        }));
 
         return button;
     },
 
     _get_target_lang_button: function() {
         let button_params = {
-            style_class: 'tranlator-top-bar-button-reactive'
+            style_class: 'tranlator-top-bar-button-reactive',
+            statusbar: this._dialog.statusbar
         };
-        let button = this._dialog.topbar.new_button(
+        let button = new ButtonsBar.ButtonsBarButton(
             false,
             '<u>To: %s</u>'.format(
                 this._translators_manager.current.get_language_name(
                     this._current_target_lang
                 )
             ),
+            'Choose target language',
             button_params,
             Lang.bind(this, function() {
                 this._target_language_chooser.open();
@@ -535,40 +530,22 @@ const TranslatorExtension = new Lang.Class({
                 );
             })
         );
-        let message_id;
-
-        button.connect('enter-event', Lang.bind(this, function() {
-            message_id = this._dialog.statusbar.add_message(
-                'Choose target language'
-            );
-        }));
-        button.connect('leave-event', Lang.bind(this, function() {
-            this._dialog.statusbar.remove_message(message_id);
-        }));
 
         return button;
     },
 
     _get_swap_langs_button: function() {
         let button_params = {
-            style_class: 'tranlator-top-bar-button-reactive'
+            style_class: 'tranlator-top-bar-button-reactive',
+            statusbar: this._dialog.statusbar
         };
-        let button = this._dialog.topbar.new_button(
+        let button = new ButtonsBar.ButtonsBarButton(
             false,
             ' <u>\u21C4</u> ',
+            'Swap languages',
             button_params,
             Lang.bind(this, this._swap_languages)
         );
-        let message_id;
-
-        button.connect('enter-event', Lang.bind(this, function() {
-            message_id = this._dialog.statusbar.add_message(
-                'Swap languages'
-            );
-        }));
-        button.connect('leave-event', Lang.bind(this, function() {
-            this._dialog.statusbar.remove_message(message_id);
-        }));
 
         return button;
     },
@@ -577,18 +554,20 @@ const TranslatorExtension = new Lang.Class({
         let button;
 
         if(this._translators_manager.num_translators < 2) {
-            button = this._dialog.topbar.new_label(
+            button = new ButtonsBar.ButtonsBarLabel(
                 this._translators_manager.current.name,
                 'tranlator-top-bar-button'
             );
         }
         else {
             let button_params = {
-                style_class: 'tranlator-top-bar-button-reactive'
+                style_class: 'tranlator-top-bar-button-reactive',
+                statusbar: this._dialog.statusbar
             };
-            button = this._dialog.topbar.new_button(
+            button = new ButtonsBar.ButtonsBarButton(
                 false,
                 '<u>%s</u>'.format(this._translators_manager.current.name),
+                'Choose translation provider',
                 button_params,
                 Lang.bind(this, function() {
                     let translators_popup = new TranslatorsPopup(button, this._dialog);
@@ -606,16 +585,6 @@ const TranslatorExtension = new Lang.Class({
                     translators_popup.open();
                 })
             );
-            let message_id;
-
-            button.connect('enter-event', Lang.bind(this, function() {
-                message_id = this._dialog.statusbar.add_message(
-                    'Choose translation provider'
-                );
-            }));
-            button.connect('leave-event', Lang.bind(this, function() {
-                this._dialog.statusbar.remove_message(message_id);
-            }));
         }
 
         return button;
@@ -623,37 +592,30 @@ const TranslatorExtension = new Lang.Class({
 
     _get_translate_button: function() {
         let button_params = {
-            style_class: 'tranlator-top-bar-go-button'
+            style_class: 'tranlator-top-bar-go-button',
+            statusbar: this._dialog.statusbar
         };
-        let button = this._dialog.topbar.new_button(
+        let button = new ButtonsBar.ButtonsBarButton(
             false,
             'Go!',
+            'Translate text(<Ctrl><Enter>)',
             button_params,
             Lang.bind(this, this._translate)
         );
-
-        let message_id;
-
-        button.connect('enter-event', Lang.bind(this, function() {
-            message_id = this._dialog.statusbar.add_message(
-                'Translate text(<Ctrl><Enter>)'
-            );
-        }));
-        button.connect('leave-event', Lang.bind(this, function() {
-            this._dialog.statusbar.remove_message(message_id);
-        }));
 
         return button;
     },
 
     _get_instant_translation_button: function() {
         let button_params = {
-            style_class: 'translator-bottom-toggle-button',
-            toggle_mode: true
+            style_class: 'translator-dialog-menu-toggle-button',
+            toggle_mode: true,
+            statusbar: this._dialog.statusbar
         };
 
-        let button = this._dialog.bottombar.new_button(
+        let button = new ButtonsBar.ButtonsBarButton(
             Utils.ICONS.instant_translation,
+            '',
             'Enable/Disable instant translation',
             button_params,
             Lang.bind(this, function() {
@@ -676,11 +638,13 @@ const TranslatorExtension = new Lang.Class({
 
     _get_help_button: function() {
         let button_params = {
-            style_class: 'translator-bottom-button'
+            style_class: 'translator-dialog-menu-button',
+            statusbar: this._dialog.statusbar
         };
 
-        let button = this._dialog.bottombar.new_button(
+        let button = new ButtonsBar.ButtonsBarButton(
             Utils.ICONS.help,
+            '',
             'Help',
             button_params,
             Lang.bind(this, this._show_help));
@@ -690,10 +654,12 @@ const TranslatorExtension = new Lang.Class({
 
     _get_prefs_button: function() {
         let button_params = {
-            style_class: 'translator-bottom-button'
+            style_class: 'translator-dialog-menu-button',
+            statusbar: this._dialog.statusbar
         };
-        let button = this._dialog.bottombar.new_button(
+        let button = new ButtonsBar.ButtonsBarButton(
             Utils.ICONS.preferences,
+            '',
             'Preferences',
             button_params,
             Lang.bind(this, function() {
@@ -707,10 +673,12 @@ const TranslatorExtension = new Lang.Class({
 
     _get_close_button: function() {
         let button_params = {
-            style_class: 'translator-bottom-button'
+            style_class: 'translator-dialog-menu-button',
+            statusbar: this._dialog.statusbar
         };
-        let button = this._dialog.bottombar.new_button(
+        let button = new ButtonsBar.ButtonsBarButton(
             Utils.ICONS.shutdown,
+            '',
             'Quit',
             button_params,
             Lang.bind(this, function() {
@@ -722,7 +690,7 @@ const TranslatorExtension = new Lang.Class({
     },
 
     _add_topbar_buttons: function() {
-        let translate_label = this._dialog.topbar.new_label(
+        let translate_label = new ButtonsBar.ButtonsBarLabel(
             'Translate ',
             'tranlator-top-bar-button'
         );
@@ -737,7 +705,7 @@ const TranslatorExtension = new Lang.Class({
         this._target_lang_button = this._get_target_lang_button();
         this._dialog.topbar.add_button(this._target_lang_button);
 
-        let by_label = this._dialog.topbar.new_label(
+        let by_label = new ButtonsBar.ButtonsBarLabel(
             ' by ',
             'tranlator-top-bar-button'
         );
@@ -746,7 +714,7 @@ const TranslatorExtension = new Lang.Class({
         this._translators_button = this._get_translators_button()
         this._dialog.topbar.add_button(this._translators_button);
 
-        let translate_label = this._dialog.topbar.new_label(
+        let translate_label = new ButtonsBar.ButtonsBarLabel(
             ' ',
             'tranlator-top-bar-button'
         );
@@ -756,18 +724,18 @@ const TranslatorExtension = new Lang.Class({
         this._dialog.topbar.add_button(this._translate_button);
     },
 
-    _add_bottombar_buttons: function() {
+    _add_dialog_menu_buttons: function() {
         let instant_translation_button = this._get_instant_translation_button();
-        this._dialog.bottombar.add_button(instant_translation_button);
+        this._dialog.dialog_menu.add_button(instant_translation_button);
 
         let help_button = this._get_help_button();
-        this._dialog.bottombar.add_button(help_button);
+        this._dialog.dialog_menu.add_button(help_button);
 
         let prefs_button = this._get_prefs_button();
-        this._dialog.bottombar.add_button(prefs_button);
+        this._dialog.dialog_menu.add_button(prefs_button);
 
         let close_button = this._get_close_button();
-        this._dialog.bottombar.add_button(close_button);
+        this._dialog.dialog_menu.add_button(close_button);
     },
 
     _translate: function() {
