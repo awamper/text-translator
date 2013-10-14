@@ -10,23 +10,24 @@ const Utils = Me.imports.utils;
 const ButtonsBarButton = new Lang.Class({
     Name: 'ButtonsBarButton',
 
-    _init: function(icon_name, text, params, action) {
-        params = Params.parse(params, {
+    _init: function(icon_name, label_text, tip_text, params, action) {
+        this.params = Params.parse(params, {
             style_class: 'translator-button',
             track_hover: true,
             reactive: true,
             toggle_mode: false,
-            icon_style: 'translator-buttons-bar-icon'
+            icon_style: 'translator-buttons-bar-icon',
+            statusbar: false
         });
         this._button_box = new St.BoxLayout();
 
         this._sensitive = true;
 
         this._button = new St.Button({
-            track_hover: params.track_hover,
-            reactive: params.reactive,
-            style_class: params.style_class,
-            toggle_mode: params.toggle_mode
+            track_hover: this.params.track_hover,
+            reactive: this.params.reactive,
+            style_class: this.params.style_class,
+            toggle_mode: this.params.toggle_mode
         });
         this._button.add_actor(this._button_box);
 
@@ -38,11 +39,13 @@ const ButtonsBarButton = new Lang.Class({
 
         this._icon = false;
         this._label = false;
+        this._label_text = label_text;
+        this._tip_text = tip_text;
 
         if(!Utils.is_blank(icon_name)) {
             this._icon = new St.Icon({
                 icon_name: icon_name,
-                style_class: params.icon_style
+                style_class: this.params.icon_style
             });
 
             this._button_box.add(this._icon, {
@@ -51,9 +54,9 @@ const ButtonsBarButton = new Lang.Class({
             });
         }
 
-        if(!Utils.is_blank(text)) {
+        if(!Utils.is_blank(this._label_text)) {
             this._label = new St.Label();
-            this._label.clutter_text.set_markup(text);
+            this._label.clutter_text.set_markup(this._label_text);
 
             this._button_box.add(this._label, {
                 x_fill: false,
@@ -62,17 +65,17 @@ const ButtonsBarButton = new Lang.Class({
 
             if(this._icon) {
                 this._label.visible = false;
-
-                this._button.connect(
-                    'enter-event',
-                    Lang.bind(this, this._on_enter_event)
-                );
-                this._button.connect(
-                    'leave-event',
-                    Lang.bind(this, this._on_leave_event)
-                );
             }
         }
+
+        this._button.connect(
+            'enter-event',
+            Lang.bind(this, this._on_enter_event)
+        );
+        this._button.connect(
+            'leave-event',
+            Lang.bind(this, this._on_leave_event)
+        );
 
         if(!this._icon && !this._label) {
             throw new Error('icon and label are both false');
@@ -80,25 +83,39 @@ const ButtonsBarButton = new Lang.Class({
     },
 
     _on_enter_event: function(object, event) {
-        this._label.opacity = 0;
-        this._label.show();
+        if(this.params.statusbar && !Utils.is_blank(this._tip_text)) {
+            this._statusbar_message_id = this.params.statusbar.add_message(
+                this._tip_text
+            );
+        }
 
-        Tweener.addTween(this._label, {
-            time: 0.3,
-            opacity: 255,
-            transition: 'easeOutQuad'
-        });
+        if(this._icon && this._label) {
+            this._label.opacity = 0;
+            this._label.show();
+
+            Tweener.addTween(this._label, {
+                time: 0.3,
+                opacity: 255,
+                transition: 'easeOutQuad'
+            });
+        }
     },
 
     _on_leave_event: function(object, event) {
-        Tweener.addTween(this._label, {
-            time: 0.3,
-            opacity: 0,
-            transition: 'easeOutQuad',
-            onComplete: Lang.bind(this, function() {
-                this._label.hide();
-            })
-        });
+        if(this.params.statusbar && !Utils.is_blank(this._tip_text)) {
+            this.params.statusbar.remove_message(this._statusbar_message_id);
+        }
+
+        if(this._icon && this._label) {
+            Tweener.addTween(this._label, {
+                time: 0.3,
+                opacity: 0,
+                transition: 'easeOutQuad',
+                onComplete: Lang.bind(this, function() {
+                    this._label.hide();
+                })
+            });
+        }
     },
 
     connect: function(signal, callback) {
@@ -199,16 +216,6 @@ const ButtonsBar = new Lang.Class({
             style_class: this.params.style_class
         });
         this._buttons = [];
-    },
-
-    new_button: function(icon_name, text, params, action) {
-        let button = new ButtonsBarButton(icon_name, text, params, action);
-        return button;
-    },
-
-    new_label: function(text, style_class) {
-        let label = new ButtonsBarLabel(text, style_class);
-        return label;
     },
 
     add_button: function(button) {

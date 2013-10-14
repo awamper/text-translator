@@ -295,7 +295,7 @@ const TranslatorDialog = new Lang.Class({
         this._topbar = new ButtonsBar.ButtonsBar({
             style_class: 'translator-top-bar-box'
         });
-        this._bottombar = new ButtonsBar.ButtonsBar();
+        this._dialog_menu = new ButtonsBar.ButtonsBar();
         this._statusbar = new StatusBar.StatusBar();
         this._chars_counter = new CharsCounter.CharsCounter();
 
@@ -313,11 +313,19 @@ const TranslatorDialog = new Lang.Class({
         let table = new St.Table({
             homogeneous: false
         });
-
         table.add(this._topbar.actor, {
             row: 0,
             col: 0,
             col_span: 2
+        });
+        table.add(this._dialog_menu.actor, {
+            row: 0,
+            col: 1,
+            expand: false,
+            x_fill: false,
+            y_fill: false,
+            x_align: St.Align.END,
+            y_align: St.Align.START
         });
         table.add(this._source.actor, {
             row: 1,
@@ -335,12 +343,8 @@ const TranslatorDialog = new Lang.Class({
             x_align: St.Align.END,
             x_fill: false
         });
-        table.add(this._bottombar.actor, {
-            row: 3,
-            col: 0
-        });
         table.add(this._statusbar.actor, {
-            row: 3,
+            row: 2,
             col: 1,
             x_fill: false,
             x_align: St.Align.END
@@ -373,8 +377,7 @@ const TranslatorDialog = new Lang.Class({
         let text_box_height =
             box_height
             - this._topbar.actor.height
-            - this._chars_counter.actor.height
-            - Math.max(this._get_statusbar_height(), this._bottombar.actor.height);
+            - Math.max(this._get_statusbar_height(), this._chars_counter.actor.height);
         this._source.set_size(text_box_width, text_box_height);
         this._target.set_size(text_box_width, text_box_height)
     },
@@ -468,8 +471,8 @@ const TranslatorDialog = new Lang.Class({
         return this._topbar;
     },
 
-    get bottombar() {
-        return this._bottombar;
+    get dialog_menu() {
+        return this._dialog_menu;
     },
 
     get statusbar() {
