@@ -13,6 +13,7 @@ const Me = ExtensionUtils.getCurrentExtension();
 const StatusBar = Me.imports.status_bar;
 const CharsCounter = Me.imports.chars_counter;
 const ButtonsBar = Me.imports.buttons_bar;
+const LanguagesButtons = Me.imports.languages_buttons;
 const PrefsKeys = Me.imports.prefs_keys;
 const Utils = Me.imports.utils;
 
@@ -274,9 +275,76 @@ const TranslatorDialog = new Lang.Class({
         this._connection_ids = {
             source_scroll: 0,
             target_scroll: 0,
-            sync_scroll_settings: 0
+            sync_scroll_settings: 0,
+            show_most_used: 0
         };
 
+        this._topbar = new ButtonsBar.ButtonsBar({
+            style_class: 'translator-top-bar-box'
+        });
+        this._dialog_menu = new ButtonsBar.ButtonsBar();
+        this._statusbar = new StatusBar.StatusBar();
+        this._most_used_bar = false;
+
+        this._chars_counter = new CharsCounter.CharsCounter();
+        this._source.clutter_text.connect('text-changed',
+            Lang.bind(this, function() {
+                this._chars_counter.current_length = this._source.length;
+            })
+        );
+        this._source.connect('max-length-changed',
+            Lang.bind(this, function() {
+                this._chars_counter.max_length = this._source.max_length;
+            })
+        );
+
+        this._table = new St.Table({
+            homogeneous: false
+        });
+        this._table.add(this._topbar.actor, {
+            row: 0,
+            col: 0,
+            col_span: 2
+        });
+        this._table.add(this._dialog_menu.actor, {
+            row: 0,
+            col: 1,
+            expand: false,
+            x_fill: false,
+            y_fill: false,
+            x_align: St.Align.END,
+            y_align: St.Align.START
+        });
+        this._table.add(this._source.actor, {
+            row: 2,
+            col: 0,
+            x_fill: false
+        });
+        this._table.add(this._target.actor, {
+            row: 2,
+            col: 1,
+            x_fill: false
+        });
+        this._table.add(this._chars_counter.actor, {
+            row: 3,
+            col: 0,
+            x_align: St.Align.END,
+            x_fill: false
+        });
+        this._table.add(this._statusbar.actor, {
+            row: 3,
+            col: 1,
+            x_fill: false,
+            x_align: St.Align.END
+        });
+
+        this.contentLayout.add_actor(this._table);
+
+        this._init_most_used_bar();
+        this._init_scroll_sync();
+    },
+
+    _init_scroll_sync: function() {
         if(Utils.SETTINGS.get_boolean(PrefsKeys.SYNC_ENTRIES_SCROLL_KEY)) {
             this.sync_entries_scroll();
         }
@@ -291,66 +359,54 @@ const TranslatorDialog = new Lang.Class({
                 else this.unsync_entries_scroll();
             })
         );
+    },
 
-        this._topbar = new ButtonsBar.ButtonsBar({
-            style_class: 'translator-top-bar-box'
-        });
-        this._dialog_menu = new ButtonsBar.ButtonsBar();
-        this._statusbar = new StatusBar.StatusBar();
-        this._chars_counter = new CharsCounter.CharsCounter();
-
-        this._source.clutter_text.connect('text-changed',
+    _init_most_used_bar: function() {
+        if(Utils.SETTINGS.get_boolean(PrefsKeys.SHOW_MOST_USED_KEY)) {
+            this._show_most_used_bar();
+        }
+        this._connection_ids.show_most_used = Utils.SETTINGS.connect(
+            'changed::%s'.format(PrefsKeys.SHOW_MOST_USED_KEY),
             Lang.bind(this, function() {
-                this._chars_counter.current_length = this._source.length;
+                if(Utils.SETTINGS.get_boolean(PrefsKeys.SHOW_MOST_USED_KEY)) {
+                    this._show_most_used_bar();
+                }
+                else {
+                    this._hide_most_used_bar();
+                }
             })
         );
-        this._source.connect('max-length-changed',
-            Lang.bind(this, function() {
-                this._chars_counter.max_length = this._source.max_length;
-            })
-        );
+    },
 
-        let table = new St.Table({
-            homogeneous: false
-        });
-        table.add(this._topbar.actor, {
-            row: 0,
-            col: 0,
-            col_span: 2
-        });
-        table.add(this._dialog_menu.actor, {
-            row: 0,
-            col: 1,
-            expand: false,
-            x_fill: false,
-            y_fill: false,
-            x_align: St.Align.END,
-            y_align: St.Align.START
-        });
-        table.add(this._source.actor, {
+    _show_most_used_bar: function() {
+        if(!this._most_used_bar) {
+            this._most_used_sources = new LanguagesButtons.LanguagesButtons();
+            this._most_used_targets = new LanguagesButtons.LanguagesButtons();
+            this._most_used_bar = true;
+        }
+
+        this._topbar.actor.set_style("padding-bottom: 0px;");
+        this._table.add(this._most_used_sources.actor, {
             row: 1,
             col: 0,
-            x_fill: false
+            x_fill: false,
+            x_align: St.Align.START
         });
-        table.add(this._target.actor, {
+        this._table.add(this._most_used_targets.actor, {
             row: 1,
             col: 1,
-            x_fill: false
-        });
-        table.add(this._chars_counter.actor, {
-            row: 2,
-            col: 0,
-            x_align: St.Align.END,
-            x_fill: false
-        });
-        table.add(this._statusbar.actor, {
-            row: 2,
-            col: 1,
             x_fill: false,
-            x_align: St.Align.END
+            x_align: St.Align.START
         });
+    },
 
-        this.contentLayout.add_actor(table);
+    _hide_most_used_bar: function() {
+        if(this._most_used_bar) {
+            this._topbar.actor.set_style("padding-bottom: 10px;");
+            this._most_used_sources.destroy();
+            this._most_used_targets.destroy();
+            this._most_used_bar = false;
+        }
     },
 
     _get_statusbar_height: function() {
@@ -361,8 +417,12 @@ const TranslatorDialog = new Lang.Class({
     },
 
     _resize: function() {
-        let width_percents = Utils.SETTINGS.get_int(PrefsKeys.WIDTH_PERCENTS_KEY);
-        let height_percents = Utils.SETTINGS.get_int(PrefsKeys.HEIGHT_PERCENTS_KEY);
+        let width_percents = Utils.SETTINGS.get_int(
+            PrefsKeys.WIDTH_PERCENTS_KEY
+        );
+        let height_percents = Utils.SETTINGS.get_int(
+            PrefsKeys.HEIGHT_PERCENTS_KEY
+        );
         let primary = Main.layoutManager.primaryMonitor;
 
         let box_width = Math.round(primary.width / 100 * width_percents);
@@ -377,7 +437,18 @@ const TranslatorDialog = new Lang.Class({
         let text_box_height =
             box_height
             - this._topbar.actor.height
-            - Math.max(this._get_statusbar_height(), this._chars_counter.actor.height);
+            - Math.max(
+                this._get_statusbar_height(),
+                this._chars_counter.actor.height
+            );
+
+        if(this._most_used_bar) {
+            text_box_height -= Math.max(
+                this._most_used_sources.actor.height,
+                this._most_used_targets.actor.height
+            );
+        }
+
         this._source.set_size(text_box_width, text_box_height);
         this._target.set_size(text_box_width, text_box_height)
     },
@@ -449,6 +520,9 @@ const TranslatorDialog = new Lang.Class({
         if(this._connection_ids.sync_scroll_settings > 0) {
             Utils.SETTINGS.disconnect(this._connection_ids.sync_scroll_settings);
         }
+        if(this._connection_ids.show_most_used > 0) {
+            Utils.SETTINGS.disconnect(this._connection_ids.show_most_used);
+        }
 
         this._source.destroy();
         this._target.destroy();
@@ -481,5 +555,13 @@ const TranslatorDialog = new Lang.Class({
 
     get dialog_layout() {
         return this._dialogLayout;
+    },
+
+    get most_used() {
+        let r = {
+            sources: this._most_used_sources,
+            targets: this._most_used_targets
+        };
+        return r;
     },
 });
