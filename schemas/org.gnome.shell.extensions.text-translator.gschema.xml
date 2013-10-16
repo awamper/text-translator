@@ -42,6 +42,10 @@
         </default>
     </key>
 
+    <key type="s" name="languages-stats">
+        <default>'{}'</default>
+    </key>
+
     <key type="s" name="last-translator">
         <default>''</default>
     </key>
@@ -55,6 +59,10 @@
     </key>
 
     <key type="b" name="enable-shortcuts">
+        <default>true</default>
+    </key>
+
+    <key type="b" name="show-most-used">
         <default>true</default>
     </key>
 

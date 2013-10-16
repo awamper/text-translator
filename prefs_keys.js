@@ -12,3 +12,5 @@ const ENABLE_SHORTCUTS_KEY = 'enable-shortcuts';
 const WIDTH_PERCENTS_KEY = 'width-percents';
 const HEIGHT_PERCENTS_KEY = 'height-percents';
 const FONT_SIZE_KEY = 'font-size';
+const LANGUAGES_STATS_KEY = 'languages-stats';
+const SHOW_MOST_USED_KEY = 'show-most-used';

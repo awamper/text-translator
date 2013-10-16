@@ -12,24 +12,29 @@ const ButtonsBarButton = new Lang.Class({
 
     _init: function(icon_name, label_text, tip_text, params, action) {
         this.params = Params.parse(params, {
-            style_class: 'translator-button',
+            button_style_class: 'translator-button',
+            box_style_class: 'translator-button-box',
             track_hover: true,
             reactive: true,
             toggle_mode: false,
             icon_style: 'translator-buttons-bar-icon',
             statusbar: false
         });
-        this._button_box = new St.BoxLayout();
+        this._button_box = new St.BoxLayout({
+            style_class: this.params.box_style_class
+        });
+        this._button_content = new St.BoxLayout();
 
         this._sensitive = true;
 
         this._button = new St.Button({
             track_hover: this.params.track_hover,
             reactive: this.params.reactive,
-            style_class: this.params.style_class,
+            style_class: this.params.button_style_class,
             toggle_mode: this.params.toggle_mode
         });
-        this._button.add_actor(this._button_box);
+        this._button.add_actor(this._button_content);
+        this._button_box.add_actor(this._button);
 
         if(typeof(action) == 'function') {
             this._button.connect('clicked', Lang.bind(this, function() {
@@ -48,7 +53,7 @@ const ButtonsBarButton = new Lang.Class({
                 style_class: this.params.icon_style
             });
 
-            this._button_box.add(this._icon, {
+            this._button_content.add(this._icon, {
                 x_fill: false,
                 x_align: St.Align.START
             });
@@ -58,7 +63,7 @@ const ButtonsBarButton = new Lang.Class({
             this._label = new St.Label();
             this._label.clutter_text.set_markup(this._label_text);
 
-            this._button_box.add(this._label, {
+            this._button_content.add(this._label, {
                 x_fill: false,
                 y_align: St.Align.MIDDLE
             });
@@ -119,26 +124,33 @@ const ButtonsBarButton = new Lang.Class({
     },
 
     connect: function(signal, callback) {
-        this.actor.connect(signal, callback);
+        this.button.connect(signal, callback);
     },
 
     set_checked: function(checked) {
         if(checked) {
-            this.actor.add_style_pseudo_class('active');
+            this.button.add_style_pseudo_class('active');
         }
         else {
-            this.actor.remove_style_pseudo_class('active');
+            this.button.remove_style_pseudo_class('active');
         }
 
-        this.actor.set_checked(checked);
+        this.button.set_checked(checked);
     },
 
     get_checked: function() {
-        return this.actor.get_checked();
+        return this.button.get_checked();
     },
 
     set_sensitive: function(sensitive) {
         this._sensitive = sensitive;
+    },
+
+    destroy: function() {
+        this.params = null;
+        this._label_text = null;
+        this._tip_text = null;
+        this._button_box.destroy();
     },
 
     get label_actor() {
@@ -173,8 +185,12 @@ const ButtonsBarButton = new Lang.Class({
         return this._label !== false ? true : false;
     },
 
-    get actor() {
+    get button() {
         return this._button;
+    },
+
+    get actor() {
+        return this._button_box;
     },
 });
 
@@ -224,6 +240,13 @@ const ButtonsBar = new Lang.Class({
             x_fill: false,
             x_align: St.Align.START
         });
+    },
+
+    clear: function() {
+        for(let i = 0; i < this._buttons.length; i++) {
+            let button = this._buttons[i];
+            button.destroy();
+        }
     },
 
     destroy: function() {

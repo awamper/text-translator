@@ -604,6 +604,10 @@ const TextTranslatorPrefsWidget = new GObject.Class({
             'Enable shortcuts:',
             PrefsKeys.ENABLE_SHORTCUTS_KEY
         );
+        page.add_boolean(
+            'Show the most used languages:',
+            PrefsKeys.SHOW_MOST_USED_KEY
+        );
 
         let spin_properties = {
             lower: 5,

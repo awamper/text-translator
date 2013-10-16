@@ -34,7 +34,9 @@
 }
 
 .translator-top-bar-box {
-    padding: 10px;
+    padding-top: 10px;
+    padding-left: 10px;
+    padding-bottom: 10px;
 }
 
 .tranlator-top-bar-button {
@@ -168,4 +170,47 @@
     size: 5px;
     font-style: italic;
     color: grey;
+}
+
+.translator-langs-buttons-label {
+    padding-left: 10px;
+    padding-bottom: 5px;
+    font-style: italic;
+    color: rgb(160, 160, 160);
+    font-size: 15px;
+}
+
+.translator-langs-buttons-box {
+    padding-left: 10px;
+    padding-bottom: 5px;
+    padding-top: 5px;
+}
+
+.translator-lang-button-box {
+    padding-right: 5px;
+}
+
+.translator-lang-button {
+    padding-left: 2px;
+    padding-right: 2px;
+    font-size: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    background-color: rgba(255, 255, 255, 0.3);
+}
+
+.translator-lang-button:hover {
+    padding-left: 2px;
+    padding-right: 2px;
+    font-size: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    background-color: rgba(64, 64, 255, 1);
+}
+
+.translator-lang-button:active {
+    padding-left: 2px;
+    padding-right: 2px;
+    font-size: 12px;
+    font-weight: bold;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    background-color: rgba(64, 64, 200, 1);
 }
