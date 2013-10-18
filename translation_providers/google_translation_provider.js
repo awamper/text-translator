@@ -17,9 +17,10 @@ const Translator = new Lang.Class({
     Name: 'GoogleTranslate',
     Extends: TranslationProviderBase.TranslationProviderBase,
 
-    _init: function() {
+    _init: function(extension_object) {
         this.parent(NAME, LIMIT*MAX_QUERIES, URL);
         this._results = [];
+        this._extension_object = extension_object;
     },
 
     _markup_dict: function(dict_data) {

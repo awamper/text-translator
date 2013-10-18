@@ -271,7 +271,9 @@ const TranslatorExtension = new Lang.Class({
         this._dialog.dialog_layout.connect('key-press-event', Lang.bind(this,
             this._on_key_press_event
         ));
-        this._translators_manager = new TranslatorsManager.TranslatorsManager();
+        this._translators_manager = new TranslatorsManager.TranslatorsManager(
+            this
+        );
 
         this._dialog.source.max_length =
             this._translators_manager.current.limit;

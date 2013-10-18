@@ -10,7 +10,8 @@ const TranslationProviderBase =
 const TranslatorsManager = new Lang.Class({
     Name: 'TranslatorsManager',
 
-    _init: function() {
+    _init: function(extension_object) {
+        this._extension_object = extension_object;
         this._translators = this._load_translators();
         this._default = this.get_by_name(
             Utils.SETTINGS.get_string(PrefsKeys.DEFAULT_TRANSLATOR_KEY)
@@ -29,7 +30,9 @@ const TranslatorsManager = new Lang.Class({
 
             if(!Utils.ends_with(file_name, '_translation_provider.js')) continue;
 
-            let translator = new translators_imports[module_name].Translator();
+            let translator = new translators_imports[module_name].Translator(
+                this._extension_object
+            );
             translator.file_name = file_name;
             translators.push(translator);
         }
