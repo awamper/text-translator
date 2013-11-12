@@ -1,4 +1,6 @@
+const St = imports.gi.St;
 const Lang = imports.lang;
+const Tweener = imports.ui.tweener;
 
 const Extension = imports.misc.extensionUtils.get_text_translator_extension();
 const TranslationProviderBase = Extension.imports.translation_provider_base;
@@ -6,12 +8,180 @@ const Utils = Extension.imports.utils;
 
 const NAME = 'Google.Translate';
 const URL =
-    'http://translate.google.com/translate_a/t?' +
+    'https://translate.google.com/translate_a/t?' +
     'client=j&ie=UTF-8&oe=UTF-8&sl=%s&tl=%s&text=%s';
 const LIMIT = 1400;
 const MAX_QUERIES = 3;
 
 const SENTENCES_REGEXP = /\n|([^\r\n.!?]+([.!?]+|\n|$))/gim;
+
+const DictionaryEntry = new Lang.Class({
+    Name: "DictionaryEntry",
+
+    _init: function(word, reverse_translations) {
+        this.word = word;
+        this.reverse_translations = reverse_translations || [];
+
+        this.actor = new St.Table({
+            homogeneous: false
+        });
+
+        this.word_label = new St.Label();
+        this.word_label.clutter_text.set_markup(
+            "<span font-size='small'>   %s        </span>".format(this.word)
+        );
+
+        let reverse_markup =
+            "<span font-size='small' font-style='italic' " +
+            "color='#C4C4C4'>%s</span>".format(
+                this.reverse_translations.join(", ")
+            );
+        this.reverse_translations_label = new St.Label();
+        this.reverse_translations_label.clutter_text.set_markup(reverse_markup);
+
+        this.actor.add(this.word_label, {
+            row: 0,
+            col: 0,
+            x_align: St.Align.START,
+            y_align: St.Align.START,
+            x_fill: false,
+            x_expand: false,
+            y_fill: false,
+            y_expand: false
+        });
+        this.actor.add(this.reverse_translations_label, {
+            row: 0,
+            col: 1,
+            x_align: St.Align.START,
+            y_align: St.Align.START,
+            x_fill: false,
+            x_expand: false,
+            y_fill: false,
+            y_expand: false
+        });
+    },
+});
+
+const DictionaryPOS = new Lang.Class({
+    Name: "DictionaryPOS",
+
+    _init: function(pos, word) {
+        this.actor = new St.Table({
+            homogeneous: false
+        });
+
+        let markup =
+            "<span font-weight='bold' font-size='medium'>%s</span>".format(word) +
+            " - <span font-size='medium' font-style='italic' " +
+            "color='#C4C4C4'>%s</span>".format(pos);
+        this._pos_label = new St.Label();
+        this._pos_label.clutter_text.set_markup(markup);
+
+        this.actor.add(this._pos_label, {
+            row: 0,
+            col: 0,
+            y_expand: false,
+            x_expand: false,
+            x_align: St.Align.START,
+            y_align: St.Align.MIDDLE
+        });
+    },
+
+    add_entry: function(dictionary_entry) {
+        this.actor.add(dictionary_entry.actor, {
+            row: this.actor.row_count,
+            col: 0,
+            x_fill: false,
+            x_expand: false,
+            y_fill: false,
+            y_expand: false,
+            y_align: St.Align.START,
+            x_align: St.Align.START
+        });
+    },
+});
+
+const Dictionary = new Lang.Class({
+    Name: "Dictionary",
+
+    _init: function(word, dict_data) {
+        this._word = word;
+        this._data = dict_data;
+
+        this._box = new St.BoxLayout({
+            vertical: true
+        });
+        this._scroll = new St.ScrollView({
+            style: "background-color: rgba(0, 0, 0, 0.7); padding: 3px;",
+            overlay_scrollbars: true,
+        });
+        this._scroll.add_actor(this._box);
+        this.actor = new St.BoxLayout({
+            opacity: 0
+        });
+        this.actor.add_actor(this._scroll);
+
+        // this._markup_dict(this._data);
+        this._show_terms(this._word, this._data);
+    },
+
+    _show_terms: function(word, dict_data) {
+        for(let i = 0; i < dict_data.length; i++) {
+            let pos = dict_data[i].pos;
+            let terms = dict_data[i].terms;
+            let entry = dict_data[i].entry;
+
+            if(Utils.is_blank(pos)) continue;
+
+            let dictionary_pos = new DictionaryPOS(pos, word);
+
+            for(let k = 0; k < entry.length; k++) {
+                let dictionary_entry = new DictionaryEntry(
+                    entry[k].word,
+                    entry[k].reverse_translation
+                )
+                dictionary_pos.add_entry(dictionary_entry);
+            }
+
+            this._box.add(dictionary_pos.actor, {
+                expand: true
+            });
+        }
+    },
+
+    show: function() {
+        this.actor.opacity = 0;
+
+        Tweener.removeTweens(this.actor);
+        Tweener.addTween(this.actor, {
+            opacity: 255,
+            time: 0.3,
+            transition: 'easeOutQuad'
+        });
+    },
+
+    hide: function(destroy) {
+        Tweener.removeTweens(this.actor);
+        Tweener.addTween(this.actor, {
+            opacity: 0,
+            time: 0.3,
+            transition: 'easeOutQuad',
+            onComplete: Lang.bind(this, function() {
+                if(destroy) this.destroy();
+            })
+        });
+    },
+
+    set_size: function(width, height) {
+        this._scroll.width = width;
+        this._scroll.height = height;
+    },
+
+    destroy: function() {
+        this.actor.destroy();
+        this._data = null;
+    }
+});
 
 const Translator = new Lang.Class({
     Name: 'GoogleTranslate',
@@ -23,35 +193,29 @@ const Translator = new Lang.Class({
         this._extension_object = extension_object;
     },
 
-    _markup_dict: function(dict_data) {
-        let result = '<span>';
+    _show_dict: function(word, json_data) {
+        this._hide_dict();
 
-        for(let i = 0; i < dict_data.length; i++) {
-            let pos = dict_data[i].pos;
-            let terms = dict_data[i].terms;
-            let entry = dict_data[i].entry;
+        this._dict = new Dictionary(word, json_data);
+        this._dict.set_size(
+            this._extension_object._dialog.target.actor.width,
+            this._extension_object._dialog.target.actor.height * 0.85
+        );
+        this._extension_object._dialog._table.add(this._dict.actor, {
+            row: 2,
+            col: 1,
+            x_fill: false,
+            y_fill: false,
+            y_align: St.Align.END,
+            x_align: St.Align.MIDDLE
+        });
+        this._dict.show();
+    },
 
-            if(!Utils.is_blank(pos)) {
-                result += '<b>%s</b>\n'.format(pos);
-            }
-
-            for(let k = 0; k < entry.length; k++) {
-                if(!Utils.is_blank(pos)) result += '\t';
-
-                result += entry[k].word;
-
-                if(entry[k].reverse_translation !== undefined) {
-                    result += '\t<span color="grey">%s</span>'.format(
-                        entry[k].reverse_translation.join(', ')
-                    );
-                }
-
-                result += '\n';
-            }
+    _hide_dict: function() {
+        if(this._dict) {
+            this._dict.hide(true);
         }
-
-        result += '</span>';
-        return result;
     },
 
     _split_text: function(text) {
@@ -115,15 +279,16 @@ const Translator = new Lang.Class({
         }
 
         if(json.dict != undefined) {
-            result = this._markup_dict(json.dict);
-            result = '%s\n\n%s'.format(json.sentences[0].trans, result);
+            this._show_dict(json.sentences[0].orig, json.dict);
         }
         else {
-            for(let i = 0; i < json.sentences.length; i++) {
-                result += json.sentences[i].trans;
-            }
-            result = Utils.escape_html(result);
+            this._hide_dict();
         }
+
+        for(let i = 0; i < json.sentences.length; i++) {
+            result += json.sentences[i].trans;
+        }
+        result = Utils.escape_html(result);
 
         return result;
     },
