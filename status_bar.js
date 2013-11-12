@@ -84,7 +84,7 @@ const StatusBar = new Lang.Class({
         this._message_label = new St.Label();
         this._message_label.get_clutter_text().use_markup = true;
         this._spinner = new Panel.AnimatedIcon(
-            'process-working.svg',
+            global.datadir + '/theme/process-working.svg',
             24
         );
 
@@ -117,6 +117,7 @@ const StatusBar = new Lang.Class({
 
         if(message.has_spinner) {
             this._spinner.actor.show();
+            this._spinner.play();
         }
         else {
             this._spinner.actor.hide();
