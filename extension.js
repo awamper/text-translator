@@ -967,10 +967,10 @@ const TranslatorExtension = new Lang.Class({
         }
 
         this._dialog.open();
-        // this._dialog.source.clutter_text.set_selection(
-        //     0,
-        //     this._dialog.source.length
-        // );
+        this._dialog.source.clutter_text.set_selection(
+            0,
+            this._dialog.source.length
+        );
         this._dialog.source.clutter_text.grab_key_focus();
         this._dialog.source.max_length = this._translators_manager.current.limit;
         this._set_current_languages();
