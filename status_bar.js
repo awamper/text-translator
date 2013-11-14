@@ -1,6 +1,6 @@
 const St = imports.gi.St;
 const Lang = imports.lang;
-const Panel = imports.ui.panel;
+const Animation = imports.ui.animation;
 const Tweener = imports.ui.tweener;
 const Mainloop = imports.mainloop;
 const Params = imports.misc.params;
@@ -83,8 +83,8 @@ const StatusBar = new Lang.Class({
         });
         this._message_label = new St.Label();
         this._message_label.get_clutter_text().use_markup = true;
-        this._spinner = new Panel.Animation.AnimatedIcon(
-            'process-working.svg',
+        this._spinner = new Animation.AnimatedIcon(
+            global.datadir + '/theme/process-working.svg',
             24
         );
 
@@ -117,6 +117,7 @@ const StatusBar = new Lang.Class({
 
         if(message.has_spinner) {
             this._spinner.actor.show();
+            this._spinner.play();
         }
         else {
             this._spinner.actor.hide();
