@@ -1,6 +1,5 @@
 const St = imports.gi.St;
 const Lang = imports.lang;
-const Tweener = imports.ui.tweener;
 
 const Extension = imports.misc.extensionUtils.get_text_translator_extension();
 const TranslationProviderBase = Extension.imports.translation_provider_base;
@@ -150,6 +149,7 @@ const Dictionary = new Lang.Class({
     },
 
     show: function() {
+        const Tweener = imports.ui.tweener;
         this.actor.opacity = 0;
 
         Tweener.removeTweens(this.actor);
@@ -161,6 +161,7 @@ const Dictionary = new Lang.Class({
     },
 
     hide: function(destroy) {
+        const Tweener = imports.ui.tweener;
         Tweener.removeTweens(this.actor);
         Tweener.addTween(this.actor, {
             opacity: 0,
