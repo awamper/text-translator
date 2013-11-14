@@ -21,6 +21,10 @@ const LanguagesStats = new Lang.Class({
             PrefsKeys.LANGUAGES_STATS_KEY
         );
         this._storage = JSON.parse(this._json_data);
+
+        if(this._storage instanceof Array) {
+            this._storage = {};
+        }
     },
 
     increment: function(translator_name, type, lang_data) {
@@ -72,7 +76,8 @@ const LanguagesStats = new Lang.Class({
 
     save: function() {
         Utils.SETTINGS.set_string(
-            PrefsKeys.LANGUAGES_STATS_KEY, JSON.stringify(this._storage)
+            PrefsKeys.LANGUAGES_STATS_KEY,
+            JSON.stringify(this._storage)
         )
         this.emit("stats-changed");
     }
