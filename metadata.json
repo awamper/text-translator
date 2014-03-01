@@ -3,7 +3,8 @@
     "name": "Text Translator",
     "description": "Translation of the text by different translators (currently Google.Translate, Yandex.Translate).\nShortcuts:\n<Super>T - open translator dialog.\n<Super><Shift>T - open translator dialog and translate text from clipboard.\n<Super><Alt>T - open translator dialog and translate from primary selection.\n<Ctrl><Enter> - Translate text.\n<Ctrl><Shift>C - copy translated text to clipboard.\n<Ctrl>S - swap languages.\n<Ctrl>D - reset languages to default",
     "shell-version": [
-	"3.10"
+        "3.11.90",
+        "3.12"
     ],
     "url": "https://github.com/awamper/text-translator",
     "settings-schema": "org.gnome.shell.extensions.text-translator",
