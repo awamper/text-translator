@@ -540,33 +540,37 @@ const TextTranslatorPrefsWidget = new GObject.Class({
 
     _init: function(params) {
         this.parent(params);
+        this.set_orientation(Gtk.Orientation.VERTICAL);
         this._settings = Utils.SETTINGS;
 
-        let main_page = this._get_main_page();
-        let providers_page = this._get_providers_page();
-        let size_page = this._get_size_page();
-        let keybindings_page = this._get_keybindings_page();
+        let main = this._get_main_page();
+        let providers = this._get_providers_page();
+        let size = this._get_size_page();
+        let keybindings = this._get_keybindings_page();
 
-        let notebook = new Gtk.Notebook({
+        let stack = new Gtk.Stack({
+            transition_type: Gtk.StackTransitionType.SLIDE_LEFT_RIGHT,
+            transition_duration: 500
+        });
+        let stack_switcher = new Gtk.StackSwitcher({
             margin_left: 5,
             margin_top: 5,
             margin_bottom: 5,
             margin_right: 5,
-            expand: true
+            stack: stack
         });
 
-        notebook.append_page(main_page.page, main_page.label);
-        notebook.append_page(providers_page.page, providers_page.label);
-        notebook.append_page(size_page.page, size_page.label);
-        notebook.append_page(keybindings_page.page, keybindings_page.label);
+        stack.add_titled(main.page, main.name, main.name);
+        stack.add_titled(providers.page, providers.name, providers.name);
+        stack.add_titled(size.page, size.name, size.name);
+        stack.add_titled(keybindings.page, keybindings.name, keybindings.name);
 
-        this.add(notebook);
+        this.add(stack_switcher);
+        this.add(stack);
     },
 
     _get_main_page: function() {
-        let page_label = new Gtk.Label({
-            label: 'Main'
-        });
+        let name = 'Main';
         let page = new TranslatorPrefsGrid();
 
         let translators_manager = new TranslatorsManager.TranslatorsManager();
@@ -625,29 +629,25 @@ const TextTranslatorPrefsWidget = new GObject.Class({
         )
 
         let result = {
-            label: page_label,
+            name: name,
             page: page
         };
         return result;
     },
 
     _get_providers_page: function() {
-        let page_label = new Gtk.Label({
-            label: 'Translators'
-        });
+        let name = 'Translators';
         let page = new TranslatorProvidersWidget();
 
         let result = {
-            label: page_label,
+            name: name,
             page: page
         };
         return result;
     },
 
     _get_size_page: function() {
-        let page_label = new Gtk.Label({
-            label: 'Size'
-        });
+        let name = 'Size';
         let page = new TranslatorPrefsGrid();
 
         let range_properties = {
@@ -668,16 +668,14 @@ const TextTranslatorPrefsWidget = new GObject.Class({
         )
 
         let result = {
-            label: page_label,
+            name: name,
             page: page
         };
         return result;
     },
 
     _get_keybindings_page: function() {
-        let page_label = new Gtk.Label({
-            label: 'Shortcuts'
-        });
+        let name = 'Shortcuts';
 
         let keybindings = {};
         keybindings[PrefsKeys.OPEN_TRANSLATOR_KEY] =
@@ -690,7 +688,7 @@ const TextTranslatorPrefsWidget = new GObject.Class({
         let page = new TranslatorKeybindingsWidget(keybindings);
 
         let result = {
-            label: page_label,
+            name: name,
             page: page
         };
         return result;
