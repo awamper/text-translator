@@ -18,6 +18,7 @@ const LanguageChooser = Me.imports.language_chooser;
 const TranslatorsManager = Me.imports.translators_manager;
 const LanguagesStats = Me.imports.languages_stats;
 const PrefsKeys = Me.imports.prefs_keys;
+const GoogleTTS = Me.imports.google_tts;
 
 ExtensionUtils.get_text_translator_extension = function() {
     return Me;
@@ -282,6 +283,7 @@ const TranslatorExtension = new Lang.Class({
         this._dialog.source.max_length =
             this._translators_manager.current.limit;
 
+        this._google_tts = new GoogleTTS.GoogleTTS();
         this._languages_stats = new LanguagesStats.LanguagesStats();
         this._add_topbar_buttons();
         this._add_dialog_menu_buttons();
@@ -874,6 +876,13 @@ const TranslatorExtension = new Lang.Class({
                 }
                 else {
                     this._dialog.target.markup ='%s'.format(result);
+
+                    if(Utils.SETTINGS.get_boolean(PrefsKeys.ENABLE_AUTO_SPEAK_KEY)) {
+                        this._google_tts.speak(
+                            this._dialog.target.text,
+                            this._current_target_lang
+                        );
+                    }
                 }
             })
         );
@@ -1032,6 +1041,7 @@ const TranslatorExtension = new Lang.Class({
         this._translators_manager.destroy();
         this._source_language_chooser.destroy();
         this._target_language_chooser.destroy();
+        this._google_tts.destroy();
         this._remove_keybindings();
 
         if(CONNECTION_IDS.show_icon > 0) {

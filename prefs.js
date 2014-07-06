@@ -608,6 +608,10 @@ const TextTranslatorPrefsWidget = new GObject.Class({
             'Show the most used languages:',
             PrefsKeys.SHOW_MOST_USED_KEY
         );
+        page.add_boolean(
+            'Auto speak result:',
+            PrefsKeys.ENABLE_AUTO_SPEAK_KEY
+        );
 
         let spin_properties = {
             lower: 5,
