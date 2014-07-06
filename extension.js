@@ -94,6 +94,15 @@ const TranslatorPanelButton = new Lang.Class({
             this._translator._translate_from_clipboard(St.ClipboardType.PRIMARY);
         }));
         this.menu.addMenuItem(this._menu_open_selection);
+
+        this._separator = new PopupMenu.PopupSeparatorMenuItem();
+        this.menu.addMenuItem(this._separator);
+
+        this._menu_open_prefs = new PopupMenu.PopupMenuItem('Preferences');
+        this._menu_open_prefs.connect('activate', Lang.bind(this, function() {
+            launch_extension_prefs(Me.uuid);
+        }));
+        this.menu.addMenuItem(this._menu_open_prefs);
     },
 
     _on_button_press: function(o, e) {
