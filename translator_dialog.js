@@ -16,6 +16,7 @@ const ButtonsBar = Me.imports.buttons_bar;
 const LanguagesButtons = Me.imports.languages_buttons;
 const PrefsKeys = Me.imports.prefs_keys;
 const Utils = Me.imports.utils;
+const GoogleTTS = Me.imports.google_tts;
 
 const EntryBase = new Lang.Class({
     Name: 'EntryBase',
@@ -253,24 +254,67 @@ const TargetEntry = new Lang.Class({
     },
 });
 
+const ListenButton = new Lang.Class({
+    Name: 'ListenButton',
+
+    _init: function() {
+        this.actor = new St.Button({
+            style_class: 'listen-button'
+        });
+        this._icon = new St.Icon({
+            icon_name: Utils.ICONS.listen,
+            icon_size: 15
+        });
+
+        this.actor.add_actor(this._icon);
+    },
+
+    show: function() {
+        this.actor.show();
+    },
+
+    hide: function() {
+        this.actor.hide();
+    },
+
+    destroy: function() {
+        this.actor.destroy();
+    }
+});
+
 const TranslatorDialog = new Lang.Class({
     Name: 'TranslatorDialog',
     Extends: ModalDialog.ModalDialog,
 
-    _init: function() {
+    _init: function(text_translator) {
         this.parent({
             shellReactive: false,
             destroyOnClose: false
         });
 
-        this._dialogLayout = 
+        this._text_translator = text_translator;
+
+        this._dialogLayout =
             typeof this.dialogLayout === "undefined"
             ? this._dialogLayout
             : this.dialogLayout;
         this._dialogLayout.set_style_class_name('translator-box');
 
         this._source = new SourceEntry();
+        this._source.clutter_text.connect(
+            'text-changed',
+            Lang.bind(this, this._on_source_changed)
+        );
+        this._source.connect('max-length-changed',
+            Lang.bind(this, function() {
+                this._chars_counter.max_length = this._source.max_length;
+            })
+        );
         this._target = new TargetEntry();
+        this._target.clutter_text.connect(
+            'text-changed',
+            Lang.bind(this, this._on_target_changed)
+        );
 
         this._connection_ids = {
             source_scroll: 0,
@@ -287,16 +331,26 @@ const TranslatorDialog = new Lang.Class({
         this._most_used_bar = false;
 
         this._chars_counter = new CharsCounter.CharsCounter();
-        this._source.clutter_text.connect('text-changed',
+
+        this._google_tts = new GoogleTTS.GoogleTTS();
+        this._listen_source_button = new ListenButton();
+        this._listen_source_button.hide();
+        this._listen_source_button.actor.connect('clicked',
             Lang.bind(this, function() {
-                this._chars_counter.current_length = this._source.length;
-            })
-        );
-        this._source.connect('max-length-changed',
+                this.google_tts.speak(
+                    this._source.text,
+                    this._text_translator.current_source_lang
+                )
+            }))
+        this._listen_target_button = new ListenButton();
+        this._listen_target_button.hide();
+        this._listen_target_button.actor.connect('clicked',
             Lang.bind(this, function() {
-                this._chars_counter.max_length = this._source.max_length;
-            })
-        );
+                this.google_tts.speak(
+                    this._target.text,
+                    this._text_translator.current_target_lang
+                )
+            }))
 
         this._table = new St.Table({
             homogeneous: false
@@ -331,6 +385,18 @@ const TranslatorDialog = new Lang.Class({
             x_align: St.Align.END,
             x_fill: false
         });
+        this._table.add(this._listen_source_button.actor, {
+            row: 3,
+            col: 0,
+            x_align: St.Align.START,
+            x_fill: false
+        });
+        this._table.add(this._listen_target_button.actor, {
+            row: 3,
+            col: 1,
+            x_align: St.Align.START,
+            x_fill: false
+        });
         this._table.add(this._statusbar.actor, {
             row: 3,
             col: 1,
@@ -342,6 +408,18 @@ const TranslatorDialog = new Lang.Class({
 
         this._init_most_used_bar();
         this._init_scroll_sync();
+    },
+
+    _on_source_changed: function() {
+        this._chars_counter.current_length = this._source.length;
+
+        if(!this._source.is_empty) this._listen_source_button.show();
+        else this._listen_source_button.hide();
+    },
+
+    _on_target_changed: function() {
+        if(!this._target.is_empty) this._listen_target_button.show();
+        else this._listen_target_button.hide();
     },
 
     _init_scroll_sync: function() {
@@ -524,12 +602,17 @@ const TranslatorDialog = new Lang.Class({
             Utils.SETTINGS.disconnect(this._connection_ids.show_most_used);
         }
 
+        delete this._text_translator;
+
         this._source.destroy();
         this._target.destroy();
         this._statusbar.destroy();
         this._dialog_menu.destroy();
         this._topbar.destroy();
         this._chars_counter.destroy();
+        this._listen_source_button.destroy();
+        this._listen_target_button.destroy();
+        this._google_tts.destroy();
         this.parent();
     },
 
@@ -564,4 +647,8 @@ const TranslatorDialog = new Lang.Class({
         };
         return r;
     },
+
+    get google_tts() {
+        return this._google_tts;
+    }
 });

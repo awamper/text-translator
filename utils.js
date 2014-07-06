@@ -24,7 +24,8 @@ const ICONS = {
     preferences: 'preferences-system-symbolic',
     close: 'window-close-symbolic',
     shutdown: 'system-shutdown-symbolic',
-    instant_translation: 'object-select-symbolic'
+    instant_translation: 'object-select-symbolic',
+    listen: 'audio-volume-high-symbolic'
 };
 
 function is_blank(str) {
