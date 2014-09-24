@@ -290,6 +290,7 @@ const TranslatorExtension = new Lang.Class({
 
         this._dialog.source.max_length =
             this._translators_manager.current.limit;
+        this._dialog.source.connect('activate', Lang.bind(this, this._translate));
 
         this._languages_stats = new LanguagesStats.LanguagesStats();
         this._add_topbar_buttons();
@@ -398,13 +399,6 @@ const TranslatorExtension = new Lang.Class({
 
         if(symbol == Clutter.Escape) {
             this.close();
-        }
-        // ctrl+return - translate text
-        else if(
-            (state == Clutter.ModifierType.CONTROL_MASK || state == cyrillic_control) &&
-            (symbol == Clutter.Return || symbol == Clutter.KP_Enter)
-        ) {
-            this._translate();
         }
         // ctrl+shift+c - copy translated text to clipboard
         else if(
