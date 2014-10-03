@@ -223,7 +223,15 @@ const LanguageChooser = new Lang.Class({
 
         if(!Utils.is_blank(list)) languages = list;
 
-        for(let code in languages) {
+        let keys = Object.keys(languages);
+        keys.sort(Lang.bind(this, function(a, b) {
+            if(a === 'auto') return false;
+            a = languages[a];
+            b = languages[b];
+            return a > b;
+        }));
+
+        for each(let code in keys) {
             let button = this._get_button(code, languages[code]);
 
             if(button.lang_code === selected_language_code) {
@@ -249,6 +257,7 @@ const LanguageChooser = new Lang.Class({
     },
 
     set_languages: function(languages) {
+        if(!languages) return;
         this._languages = languages;
     },
 
