@@ -1,5 +1,6 @@
 const St = imports.gi.St;
 const Lang = imports.lang;
+const Pango = imports.gi.Pango;
 
 const Extension = imports.misc.extensionUtils.get_text_translator_extension();
 const TranslationProviderBase = Extension.imports.translation_provider_base;
@@ -120,7 +121,6 @@ const Dictionary = new Lang.Class({
         });
         this.actor.add_actor(this._scroll);
 
-        // this._markup_dict(this._data);
         this._show_terms(this._word, this._data);
     },
 
@@ -184,6 +184,82 @@ const Dictionary = new Lang.Class({
     }
 });
 
+const TranslitButton = new Lang.Class({
+    Name: 'TranslitButton',
+
+    _init: function() {
+        this.actor = new St.Button({
+            style_class: 'listen-button'
+        });
+        this._icon = new St.Icon({
+            icon_name: 'format-text-direction-ltr-symbolic',
+            icon_size: 15
+        });
+
+        this.actor.add_actor(this._icon);
+    },
+
+    show: function() {
+        this.actor.show();
+    },
+
+    hide: function() {
+        this.actor.hide();
+    },
+
+    destroy: function() {
+        this.actor.destroy();
+    }
+});
+
+const TranslitBox = new Lang.Class({
+    Name: 'TranslitBox',
+
+    _init: function() {
+        this.actor = new St.BoxLayout({
+            vertical: true
+        });
+
+        let text_box = new St.BoxLayout({
+            vertical: true
+        });
+        this._translit_label = new St.Label();
+        this._translit_label.clutter_text.set_line_wrap(true);
+        this._translit_label.clutter_text.set_ellipsize(Pango.EllipsizeMode.NONE);
+        text_box.add_child(this._translit_label);
+
+        let scroll = new St.ScrollView();
+        scroll.add_actor(text_box);
+
+        this.actor.add_child(scroll);
+    },
+
+    show: function() {
+        this.actor.show();
+    },
+
+    hide: function() {
+        this.actor.hide();
+    },
+
+    destroy: function() {
+        this.actor.destroy();
+    },
+
+    set_size: function(width, height) {
+        this.actor.width = width;
+        this.actor.height = height;
+    },
+
+    set text(text) {
+        this._translit_label.set_text(text);
+    },
+
+    get shown() {
+        return this.actor.visible;
+    }
+});
+
 const Translator = new Lang.Class({
     Name: 'GoogleTranslate',
     Extends: TranslationProviderBase.TranslationProviderBase,
@@ -191,7 +267,67 @@ const Translator = new Lang.Class({
     _init: function(extension_object) {
         this.parent(NAME, LIMIT*MAX_QUERIES, URL);
         this._results = [];
+        this._translit = '';
+        this._translit_box = null;
         this._extension_object = extension_object;
+
+        this._translit_button = new TranslitButton();
+        this._translit_button.actor.connect(
+            'clicked',
+            Lang.bind(this, this._on_translit_button)
+        );
+        this._translit_button.hide();
+        this._extension_object._dialog._table.add(this._translit_button.actor, {
+            row: 3,
+            col: 1,
+            x_align: St.Align.START,
+            y_align: St.Align.MIDDLE,
+            x_fill: false,
+            y_fill: false
+        });
+        this._translit_button.actor.translation_x = 25;
+    },
+
+    _on_translit_button: function() {
+        if(this._translit_box) this._hide_translit();
+        else this._show_translit();
+    },
+
+    _show_translit: function() {
+        if(this._dict) {
+            this._dict.hide();
+        }
+        this._extension_object._dialog.target.actor.hide();
+
+        this._translit_box = new TranslitBox();
+        this._translit_box.text = this._translit;
+        this._translit_box.set_size(
+            this._extension_object._dialog.target.actor.width,
+            this._extension_object._dialog.target.actor.height
+        );
+        this._extension_object._dialog._table.add(this._translit_box.actor, {
+            row: 2,
+            col: 1,
+            x_fill: false,
+            y_fill: false,
+            y_align: St.Align.END,
+            x_align: St.Align.MIDDLE
+        });
+        this._translit_box.show();
+    },
+
+    _hide_translit: function() {
+        this._extension_object._dialog.target.actor.show();
+
+        if(this._translit_box) {
+            this._translit_box.hide();
+            this._translit_box.destroy();
+            this._translit_box = null;
+        }
+
+        if(this._dict) {
+            this._dict.show();
+        }
     },
 
     _show_dict: function(word, json_data) {
@@ -287,14 +423,27 @@ const Translator = new Lang.Class({
         }
 
         for(let i = 0; i < json.sentences.length; i++) {
+            if(json.sentences[i].translit) {
+                this._translit += json.sentences[i].translit + ' ';
+            }
             result += json.sentences[i].trans;
         }
         result = Utils.escape_html(result);
+
+        if(!Utils.is_blank(this._translit)) {
+            this._translit_button.show();
+        }
+        else {
+            this._translit_button.hide();
+        }
 
         return result;
     },
 
     translate: function(source_lang, target_lang, text, callback) {
+        this._translit = '';
+        this._hide_translit();
+
         if(Utils.is_blank(text)) {
             callback(false);
             return;
