@@ -1,6 +1,7 @@
 const St = imports.gi.St;
 const Lang = imports.lang;
 const Pango = imports.gi.Pango;
+const Clutter = imports.gi.Clutter;
 
 const Extension = imports.misc.extensionUtils.get_text_translator_extension();
 const TranslationProviderBase = Extension.imports.translation_provider_base;
@@ -286,6 +287,20 @@ const Translator = new Lang.Class({
             y_fill: false
         });
         this._translit_button.actor.translation_x = 25;
+
+        this._extension_object._dialog.dialog_layout.connect(
+            'key-press-event',
+            Lang.bind(this, function(object, event) {
+                let symbol = event.get_key_symbol();
+
+                if(symbol === Clutter.Tab) {
+                    this._on_translit_button();
+                    return true;
+                }
+
+                return false;
+            })
+        );
     },
 
     _on_translit_button: function() {
