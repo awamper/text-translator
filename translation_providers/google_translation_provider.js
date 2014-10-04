@@ -288,19 +288,20 @@ const Translator = new Lang.Class({
         });
         this._translit_button.actor.translation_x = 25;
 
-        this._extension_object._dialog.dialog_layout.connect(
-            'key-press-event',
-            Lang.bind(this, function(object, event) {
-                let symbol = event.get_key_symbol();
+        this._tab_connection_id =
+            this._extension_object._dialog.dialog_layout.connect(
+                'key-press-event',
+                Lang.bind(this, function(object, event) {
+                    let symbol = event.get_key_symbol();
 
-                if(symbol === Clutter.Tab) {
-                    this._on_translit_button();
-                    return true;
-                }
+                    if(symbol === Clutter.Tab) {
+                        this._on_translit_button();
+                        return true;
+                    }
 
-                return false;
-            })
-        );
+                    return false;
+                })
+            );
     },
 
     _on_translit_button: function() {
@@ -493,4 +494,24 @@ const Translator = new Lang.Class({
             });
         }
     },
+
+    destroy: function() {
+        this._translit_button.destroy();
+
+        if(this._dict) this._dict.destroy();
+        if(this._translit_box) this._translit_box.destroy();
+
+        if(this._tab_connection_id > 0) {
+            this._extension_object._dialog.dialog_layout.disconnect(
+                this._tab_connection_id
+            );
+            this._tab_connection_id = 0;
+        }
+
+        this._translit_box = null;
+        this._translit = '';
+        this._extension_object = null;
+
+        this.parent();
+    }
 });
