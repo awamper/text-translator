@@ -272,36 +272,38 @@ const Translator = new Lang.Class({
         this._translit_box = null;
         this._extension_object = extension_object;
 
-        this._translit_button = new TranslitButton();
-        this._translit_button.actor.connect(
-            'clicked',
-            Lang.bind(this, this._on_translit_button)
-        );
-        this._translit_button.hide();
-        this._extension_object._dialog._table.add(this._translit_button.actor, {
-            row: 3,
-            col: 1,
-            x_align: St.Align.START,
-            y_align: St.Align.MIDDLE,
-            x_fill: false,
-            y_fill: false
-        });
-        this._translit_button.actor.translation_x = 25;
-
-        this._tab_connection_id =
-            this._extension_object._dialog.dialog_layout.connect(
-                'key-press-event',
-                Lang.bind(this, function(object, event) {
-                    let symbol = event.get_key_symbol();
-
-                    if(symbol === Clutter.Tab) {
-                        this._on_translit_button();
-                        return true;
-                    }
-
-                    return false;
-                })
+        if(this._extension_object) {
+            this._translit_button = new TranslitButton();
+            this._translit_button.actor.connect(
+                'clicked',
+                Lang.bind(this, this._on_translit_button)
             );
+            this._translit_button.hide();
+            this._extension_object._dialog._table.add(this._translit_button.actor, {
+                row: 3,
+                col: 1,
+                x_align: St.Align.START,
+                y_align: St.Align.MIDDLE,
+                x_fill: false,
+                y_fill: false
+            });
+            this._translit_button.actor.translation_x = 25;
+
+            this._tab_connection_id =
+                this._extension_object._dialog.dialog_layout.connect(
+                    'key-press-event',
+                    Lang.bind(this, function(object, event) {
+                        let symbol = event.get_key_symbol();
+
+                        if(symbol === Clutter.Tab) {
+                            this._on_translit_button();
+                            return true;
+                        }
+
+                        return false;
+                    })
+                );
+        }
     },
 
     _on_translit_button: function() {
