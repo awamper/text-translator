@@ -40,7 +40,8 @@ const HelpDialog = new Lang.Class({
             "Translate text.\n<b>&lt;Ctrl&gt;&lt;Shift&gt;C</b> - copy translated " +
             "text to clipboard.\n<b>&lt;Ctrl&gt;S</b> - swap languages.\n" +
             "<b>&lt;Ctrl&gt;D</b> - reset languages to default.\n" +
-            "<b>&lt;Escape&gt;, &lt;Super&gt;</b> - close dialog";
+            "<b>&lt;Tab&gt;</b> - toggle transliteration of result text.\n" +
+            "<b>&lt;Escape&gt;</b> - close dialog";
         this._label.clutter_text.set_markup(markup);
 
         this._close_button = this._get_close_button();
