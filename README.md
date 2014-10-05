@@ -8,7 +8,8 @@ Translation of the text by different translators (currently [Google.Translate](h
 &lt;Ctrl&gt;&lt;Enter&gt; - translate text.  
 &lt;Ctrl&gt;&lt;Shift&gt;C - copy translated text to clipboard.  
 &lt;Ctrl&gt;S - swap languages.  
-&lt;Ctrl&gt;D - reset languages to default.
+&lt;Ctrl&gt;D - reset languages to default.  
+&lt;Tab&gt; - toggle transliteration of result text.
 ###Screenshots
 ######Dialog
 ![Translator](/screenshots/1.jpg)
