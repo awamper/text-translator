@@ -10,6 +10,10 @@ const Utils = Me.imports.utils;
 const PrefsKeys = Me.imports.prefs_keys;
 const TranslatorsManager = Me.imports.translators_manager;
 
+const Convenience = Me.imports.convenience;
+const Gettext = imports.gettext.domain('text_translator');
+const _ = Gettext.gettext;
+
 ExtensionUtils.get_text_translator_extension = function() {
     return Me;
 }
@@ -57,7 +61,7 @@ const TranslatorProvidersWidget = new GObject.Class({
         // default source
         this._source_languages_combo = this._get_combo([]);
         let label = new Gtk.Label({
-            label: 'Default source language:',
+            label: _("Default source language:"),
             hexpand: true,
             halign: Gtk.Align.START
         });
@@ -72,7 +76,7 @@ const TranslatorProvidersWidget = new GObject.Class({
         // default target
         this._target_languages_combo = this._get_combo([]);
         label = new Gtk.Label({
-            label: 'Default target language:',
+            label: _("Default target language:"),
             hexpand: true,
             halign: Gtk.Align.START
         });
@@ -86,7 +90,7 @@ const TranslatorProvidersWidget = new GObject.Class({
 
         // remember last lang
         label = new Gtk.Label({
-            label: 'Remember the last used languages:',
+            label: _("Remember the last used languages:"),
             hexpand: true,
             halign: Gtk.Align.START
         });
@@ -275,7 +279,7 @@ const TranslatorKeybindingsWidget = new GObject.Class({
 
         let action_renderer = new Gtk.CellRendererText();
         let action_column = new Gtk.TreeViewColumn({
-            'title': 'Action',
+            'title': _("Action"),
             'expand': true
         });
         action_column.pack_start(action_renderer, true);
@@ -293,7 +297,7 @@ const TranslatorKeybindingsWidget = new GObject.Class({
                     this._store.get_iter_from_string(iter);
 
                 if(!success) {
-                    printerr("Can't change keybinding");
+                    printerr(_("Can't change keybinding"));
                 }
 
                 let name = this._store.get_value(iterator, 0);
@@ -570,7 +574,7 @@ const TextTranslatorPrefsWidget = new GObject.Class({
     },
 
     _get_main_page: function() {
-        let name = 'Main';
+        let name = _("Main");
         let page = new TranslatorPrefsGrid();
 
         let translators_manager = new TranslatorsManager.TranslatorsManager();
@@ -586,34 +590,34 @@ const TextTranslatorPrefsWidget = new GObject.Class({
         }
 
         page.add_combo(
-            'Default translator:',
+            _("Default translator")+':',
             PrefsKeys.DEFAULT_TRANSLATOR_KEY,
             result_list,
             'string'
         );
 
         page.add_boolean(
-            'Remember the last used translator:',
+            _("Remember the last used translator")+':',
             PrefsKeys.REMEMBER_LAST_TRANSLATOR_KEY
         );
         page.add_boolean(
-            'Show icon:',
+            _("Show icon")+':',
             PrefsKeys.SHOW_ICON_KEY
         );
         page.add_boolean(
-            'Sync entries scrolling:',
+            _("Sync entries scrolling")+':',
             PrefsKeys.SYNC_ENTRIES_SCROLL_KEY
         );
         page.add_boolean(
-            'Enable shortcuts:',
+            _("Enable shortcuts")+':',
             PrefsKeys.ENABLE_SHORTCUTS_KEY
         );
         page.add_boolean(
-            'Show the most used languages:',
+            _("Show the most used languages")+':',
             PrefsKeys.SHOW_MOST_USED_KEY
         );
         page.add_boolean(
-            'Auto speak result:',
+            _("Auto speak result")+':',
             PrefsKeys.ENABLE_AUTO_SPEAK_KEY
         );
 
@@ -623,7 +627,7 @@ const TextTranslatorPrefsWidget = new GObject.Class({
             step_increment: 1
         };
         page.add_spin(
-            'Font size:',
+            _("Font size")+':',
             PrefsKeys.FONT_SIZE_KEY,
             spin_properties
         )
@@ -636,7 +640,7 @@ const TextTranslatorPrefsWidget = new GObject.Class({
     },
 
     _get_providers_page: function() {
-        let name = 'Translators';
+        let name = _("Translators");
         let page = new TranslatorProvidersWidget();
 
         let result = {
@@ -647,7 +651,7 @@ const TextTranslatorPrefsWidget = new GObject.Class({
     },
 
     _get_size_page: function() {
-        let name = 'Size';
+        let name = _("Size");
         let page = new TranslatorPrefsGrid();
 
         let range_properties = {
@@ -657,12 +661,12 @@ const TextTranslatorPrefsWidget = new GObject.Class({
             size: 300
         };
         page.add_range(
-            'Width (% of screen):',
+            _("Width (% of screen)")+':',
             PrefsKeys.WIDTH_PERCENTS_KEY,
             range_properties
         )
         page.add_range(
-            'Height (% of screen):',
+            _("Height (% of screen)")+':',
             PrefsKeys.HEIGHT_PERCENTS_KEY,
             range_properties
         )
@@ -675,15 +679,15 @@ const TextTranslatorPrefsWidget = new GObject.Class({
     },
 
     _get_keybindings_page: function() {
-        let name = 'Shortcuts';
+        let name = _("Shortcuts");
 
         let keybindings = {};
         keybindings[PrefsKeys.OPEN_TRANSLATOR_KEY] =
-            'Open tranlator dialog';
+            _("Open tranlator dialog");
         keybindings[PrefsKeys.TRANSLATE_FROM_CLIPBOARD_KEY] =
-            'Translate from clipboard';
+            _("Translate from clipboard");
         keybindings[PrefsKeys.TRANSLATE_FROM_SELECTION_KEY] = 
-            'Translate from primary selection';
+            _("Translate from primary selection");
 
         let page = new TranslatorKeybindingsWidget(keybindings);
 
@@ -696,7 +700,7 @@ const TextTranslatorPrefsWidget = new GObject.Class({
 });
 
 function init(){
-    // nothing
+    Convenience.initTranslations("text_translator");
 }
 
 function buildPrefsWidget() {

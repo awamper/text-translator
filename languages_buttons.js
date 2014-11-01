@@ -6,6 +6,9 @@ const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 const ButtonsBar = Me.imports.buttons_bar;
 
+const Gettext = imports.gettext.domain('text_translator');
+const _ = Gettext.gettext;
+
 const LanguagesButtons = new Lang.Class({
     Name: 'LanguagesButtons',
 
@@ -14,7 +17,7 @@ const LanguagesButtons = new Lang.Class({
 
         this._box = new St.BoxLayout();
         this._label = new St.Label({
-            text: "There will appear the most used languages​​.",
+            text: _("There will appear the most used languages."),
             style_class: "translator-langs-buttons-label"
         });
         this.buttons = new ButtonsBar.ButtonsBar({

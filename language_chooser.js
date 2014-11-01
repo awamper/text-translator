@@ -10,6 +10,9 @@ const Me = ExtensionUtils.getCurrentExtension();
 const Utils = Me.imports.utils;
 const PrefsKeys = Me.imports.prefs_keys;
 
+const Gettext = imports.gettext.domain('text_translator');
+const _ = Gettext.gettext;
+
 const COLUMNS = 4;
 
 const LanguageChooser = new Lang.Class({
@@ -69,7 +72,7 @@ const LanguageChooser = new Lang.Class({
         );
 
         this._info_label = new St.Label({
-            text: '<span color="black"><i>Type to search...</i></span>'
+            text: '<span color="black"><i>' + _("Type to search...") + '</i></span>'
         });
         this._info_label.clutter_text.set_use_markup(true);
 

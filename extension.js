@@ -19,6 +19,10 @@ const TranslatorsManager = Me.imports.translators_manager;
 const LanguagesStats = Me.imports.languages_stats;
 const PrefsKeys = Me.imports.prefs_keys;
 
+const Convenience = Me.imports.convenience;
+const Gettext = imports.gettext.domain('text_translator');
+const _ = Gettext.gettext;
+
 ExtensionUtils.get_text_translator_extension = function() {
     return Me;
 }
@@ -75,20 +79,20 @@ const TranslatorPanelButton = new Lang.Class({
     _add_menu_items: function() {
         let menu_item;
 
-        this._item_open = new PopupMenu.PopupMenuItem('Open');
+        this._item_open = new PopupMenu.PopupMenuItem(_("Open"));
         this._item_open.connect('activate', Lang.bind(this, function() {
             this._translator.open();
         }));
         this.menu.addMenuItem(this._item_open);
 
-        this._menu_open_clipboard = new PopupMenu.PopupMenuItem('Open with clipboard');
+        this._menu_open_clipboard = new PopupMenu.PopupMenuItem(_("Open with clipboard"));
         this._menu_open_clipboard.label.clutter_text.set_use_markup(true);
         this._menu_open_clipboard.connect('activate', Lang.bind(this, function() {
             this._translator._translate_from_clipboard(St.ClipboardType.CLIPBOARD);
         }));
         this.menu.addMenuItem(this._menu_open_clipboard);
 
-        this._menu_open_selection = new PopupMenu.PopupMenuItem('Open with selection');
+        this._menu_open_selection = new PopupMenu.PopupMenuItem(_("Open with selection"));
         this._menu_open_selection.label.clutter_text.set_use_markup(true);
         this._menu_open_selection.connect('activate', Lang.bind(this, function() {
             this._translator._translate_from_clipboard(St.ClipboardType.PRIMARY);
@@ -98,7 +102,7 @@ const TranslatorPanelButton = new Lang.Class({
         this._separator = new PopupMenu.PopupSeparatorMenuItem();
         this.menu.addMenuItem(this._separator);
 
-        this._menu_open_prefs = new PopupMenu.PopupMenuItem('Preferences');
+        this._menu_open_prefs = new PopupMenu.PopupMenuItem(_("Preferences"));
         this._menu_open_prefs.connect('activate', Lang.bind(this, function() {
             launch_extension_prefs(Me.uuid);
         }));
@@ -145,15 +149,15 @@ const TranslatorPanelButton = new Lang.Class({
                     if(text_length < 1) {
                         this._menu_open_clipboard.setSensitive(false);
                         this._menu_open_clipboard.label.clutter_text.set_markup(
-                            'Translate from clipboard(<span size="xx-small" color="grey">' +
-                            '<i>empty</i></span>)'
+                            _("Translate from clipboard")+'(<span size="xx-small" color="grey">' +
+                            '<i>'+_("empty")+'</i></span>)'
                         );
                     }
                     else {
                         this._menu_open_clipboard.setSensitive(true);
                         this._menu_open_clipboard.label.clutter_text.set_markup(
-                            'Translate from clipboard(<span size="xx-small" color="grey">' +
-                            '<i>%s chars</i></span>)'.format(text_length)
+                            _("Translate from clipboard")+'(<span size="xx-small" color="grey">' +
+                            ('<i>%s '+_("chars")+'</i></span>)').format(text_length)
                         );
                     }
 
@@ -168,15 +172,15 @@ const TranslatorPanelButton = new Lang.Class({
                             if(selection_length < 1) {
                                 this._menu_open_selection.setSensitive(false);
                                 this._menu_open_selection.label.clutter_text.set_markup(
-                                    'Open with selection(<span size="xx-small" color="grey">' +
-                                    '<i>empty</i></span>)'
+                                    _("Open with selection")+'(<span size="xx-small" color="grey">' +
+                                    '<i>'+_("empty")+'</i></span>)'
                                 );
                             }
                             else {
                                 this._menu_open_selection.setSensitive(true);
                                 this._menu_open_selection.label.clutter_text.set_markup(
-                                    'Open with selection(<span size="xx-small" color="grey">' +
-                                    '<i>%s chars</i></span>)'.format(selection_length)
+                                    _("Open with selection")+'(<span size="xx-small" color="grey">' +
+                                    ('<i>%s '+_("chars")+'</i></span>)').format(selection_length)
                                 );
                             }
                         })
@@ -201,7 +205,7 @@ const TranslatorsPopup = new Lang.Class({
         this.setSourceAlignment(0.05);
 
         this._label_menu_item = new St.Label({
-            text: 'Press <Esc> to close',
+            text: _("Press <Esc> to close"),
             style_class: 'translator-translators-popup-escape-label'
         })
 
@@ -360,14 +364,14 @@ const TranslatorExtension = new Lang.Class({
 
     _init_languages_chooser: function() {
         this._source_language_chooser = new LanguageChooser.LanguageChooser(
-            'Choose source language:'
+            _("Choose source language")+':'
         );
         this._source_language_chooser.connect('language-chose', Lang.bind(this,
             this._on_source_language_chose
         ));
 
         this._target_language_chooser = new LanguageChooser.LanguageChooser(
-            'Choose target language:'
+            _("Choose target language")+':'
         );
         this._target_language_chooser.connect('language-chose', Lang.bind(this,
             this._on_target_language_chose
@@ -412,7 +416,7 @@ const TranslatorExtension = new Lang.Class({
 
             if(Utils.is_blank(text)) {
                 this._dialog.statusbar.add_message(
-                    'There is nothing to copy.',
+                    _("There is nothing to copy."),
                     1500,
                     StatusBar.MESSAGE_TYPES.error,
                     false
@@ -422,7 +426,7 @@ const TranslatorExtension = new Lang.Class({
                 let clipboard = St.Clipboard.get_default();
                 clipboard.set_text(St.ClipboardType.CLIPBOARD, text);
                 this._dialog.statusbar.add_message(
-                    'Translated text copied to clipboard.',
+                    _("Translated text copied to clipboard."),
                     1500,
                     StatusBar.MESSAGE_TYPES.info,
                     false
@@ -567,13 +571,13 @@ const TranslatorExtension = new Lang.Class({
 
     _current_langs_changed: function() {
         this._source_lang_button.label =
-            '<u>From: %s</u>'.format(
+            '<u>'+_("From")+': %s</u>'.format(
                 this._translators_manager.current.get_language_name(
                     this._current_source_lang
                 )
             );
         this._target_lang_button.label =
-            '<u>To: %s</u>'.format(
+            '<u>'+_("To")+': %s</u>'.format(
                 this._translators_manager.current.get_language_name(
                     this._current_target_lang
                 )
@@ -587,12 +591,12 @@ const TranslatorExtension = new Lang.Class({
         };
         let button = new ButtonsBar.ButtonsBarButton(
             false,
-            '<u>From: %s</u>'.format(
+            '<u>'+_("From")+': %s</u>'.format(
                 this._translators_manager.current.get_language_name(
                     this._current_source_lang
                 )
             ),
-            'Choose source language',
+            _("Choose source language"),
             button_params,
             Lang.bind(this, function() {
                 this._source_language_chooser.open();
@@ -615,12 +619,12 @@ const TranslatorExtension = new Lang.Class({
         };
         let button = new ButtonsBar.ButtonsBarButton(
             false,
-            '<u>To: %s</u>'.format(
+            '<u>'+_("To")+': %s</u>'.format(
                 this._translators_manager.current.get_language_name(
                     this._current_target_lang
                 )
             ),
-            'Choose target language',
+            _("Choose target language"),
             button_params,
             Lang.bind(this, function() {
                 this._target_language_chooser.open();
@@ -646,7 +650,7 @@ const TranslatorExtension = new Lang.Class({
         let button = new ButtonsBar.ButtonsBarButton(
             false,
             ' <u>\u21C4</u> ',
-            'Swap languages',
+            _("Swap languages"),
             button_params,
             Lang.bind(this, this._swap_languages)
         );
@@ -671,7 +675,7 @@ const TranslatorExtension = new Lang.Class({
             button = new ButtonsBar.ButtonsBarButton(
                 false,
                 '<u>%s</u>'.format(this._translators_manager.current.name),
-                'Choose translation provider',
+                _("Choose translation provider"),
                 button_params,
                 Lang.bind(this, function() {
                     let translators_popup = new TranslatorsPopup(
@@ -708,8 +712,8 @@ const TranslatorExtension = new Lang.Class({
         };
         let button = new ButtonsBar.ButtonsBarButton(
             false,
-            'Go!',
-            'Translate text(<Ctrl><Enter>)',
+            _("Go!"),
+            _("Translate text(<Ctrl><Enter>)"),
             button_params,
             Lang.bind(this, this._translate)
         );
@@ -727,7 +731,7 @@ const TranslatorExtension = new Lang.Class({
         let button = new ButtonsBar.ButtonsBarButton(
             Utils.ICONS.instant_translation,
             '',
-            'Enable/Disable instant translation',
+            _("Enable/Disable instant translation"),
             button_params,
             Lang.bind(this, function() {
                 let checked = button.get_checked();
@@ -756,7 +760,7 @@ const TranslatorExtension = new Lang.Class({
         let button = new ButtonsBar.ButtonsBarButton(
             Utils.ICONS.help,
             '',
-            'Help',
+            _("Help"),
             button_params,
             Lang.bind(this, this._show_help));
 
@@ -771,7 +775,7 @@ const TranslatorExtension = new Lang.Class({
         let button = new ButtonsBar.ButtonsBarButton(
             Utils.ICONS.preferences,
             '',
-            'Preferences',
+            _("Preferences"),
             button_params,
             Lang.bind(this, function() {
                 this.close();
@@ -790,7 +794,7 @@ const TranslatorExtension = new Lang.Class({
         let button = new ButtonsBar.ButtonsBarButton(
             Utils.ICONS.shutdown,
             '',
-            'Quit',
+            _("Quit"),
             button_params,
             Lang.bind(this, function() {
                 this.close();
@@ -802,7 +806,7 @@ const TranslatorExtension = new Lang.Class({
 
     _add_topbar_buttons: function() {
         let translate_label = new ButtonsBar.ButtonsBarLabel(
-            'Translate ',
+            _("Translate")+' ',
             'tranlator-top-bar-button'
         );
         this._dialog.topbar.add_button(translate_label);
@@ -817,7 +821,7 @@ const TranslatorExtension = new Lang.Class({
         this._dialog.topbar.add_button(this._target_lang_button);
 
         let by_label = new ButtonsBar.ButtonsBarLabel(
-            ' by ',
+            ' ' + _("by") + ' ',
             'tranlator-top-bar-button'
         );
         this._dialog.topbar.add_button(by_label);
@@ -855,7 +859,7 @@ const TranslatorExtension = new Lang.Class({
         this._update_stats();
         this._dialog.target.text = '';
         let message_id = this._dialog.statusbar.add_message(
-            'Translating...',
+            _("Translating..."),
             0,
             StatusBar.MESSAGE_TYPES.info,
             true
@@ -896,7 +900,7 @@ const TranslatorExtension = new Lang.Class({
         clipboard.get_text(clipboard_type, Lang.bind(this, function(clipboard, text) {
             if(Utils.is_blank(text)) {
                 this._dialog.statusbar.add_message(
-                    'Clipboard is empty.',
+                    _("Clipboard is empty."),
                     2000,
                     StatusBar.MESSAGE_TYPES.error,
                     false
@@ -1069,7 +1073,7 @@ const TranslatorExtension = new Lang.Class({
 let translator = null;
 
 function init() {
-    // nothing
+    Convenience.initTranslations("text_translator");
 }
 
 function enable() {

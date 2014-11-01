@@ -1,0 +1,532 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2014-11-01 13:15+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: languages_buttons.js:21
+msgid "There will appear the most used languages."
+msgstr ""
+
+#: prefs.js:64
+msgid "Default source language:"
+msgstr ""
+
+#: prefs.js:79
+msgid "Default target language:"
+msgstr ""
+
+#: prefs.js:93
+msgid "Remember the last used languages:"
+msgstr ""
+
+#: prefs.js:282
+msgid "Action"
+msgstr ""
+
+#: prefs.js:300
+msgid "Can't change keybinding"
+msgstr ""
+
+#: prefs.js:577
+msgid "Main"
+msgstr ""
+
+#: prefs.js:593
+msgid "Default translator"
+msgstr ""
+
+#: prefs.js:600
+msgid "Remember the last used translator"
+msgstr ""
+
+#: prefs.js:604
+msgid "Show icon"
+msgstr ""
+
+#: prefs.js:608
+msgid "Sync entries scrolling"
+msgstr ""
+
+#: prefs.js:612
+msgid "Enable shortcuts"
+msgstr ""
+
+#: prefs.js:616
+msgid "Show the most used languages"
+msgstr ""
+
+#: prefs.js:620
+msgid "Auto speak result"
+msgstr ""
+
+#: prefs.js:630
+msgid "Font size"
+msgstr ""
+
+#: prefs.js:643
+msgid "Translators"
+msgstr ""
+
+#: prefs.js:654
+msgid "Size"
+msgstr ""
+
+#: prefs.js:664
+#, javascript-format
+msgid "Width (% of screen)"
+msgstr ""
+
+#: prefs.js:669
+#, javascript-format
+msgid "Height (% of screen)"
+msgstr ""
+
+#: prefs.js:682 help_dialog.js:38
+msgid "Shortcuts"
+msgstr ""
+
+#: prefs.js:686
+msgid "Open tranlator dialog"
+msgstr ""
+
+#: prefs.js:688 extension.js:152 extension.js:159
+msgid "Translate from clipboard"
+msgstr ""
+
+#: prefs.js:690
+msgid "Translate from primary selection"
+msgstr ""
+
+#: extension.js:82
+msgid "Open"
+msgstr ""
+
+#: extension.js:88
+msgid "Open with clipboard"
+msgstr ""
+
+#: extension.js:95 extension.js:175 extension.js:182
+msgid "Open with selection"
+msgstr ""
+
+#: extension.js:105 extension.js:778
+msgid "Preferences"
+msgstr ""
+
+#: extension.js:153 extension.js:176
+msgid "empty"
+msgstr ""
+
+#: extension.js:160 extension.js:183
+msgid "chars"
+msgstr ""
+
+#: extension.js:208
+msgid "Press <Esc> to close"
+msgstr ""
+
+#: extension.js:367 extension.js:599
+msgid "Choose source language"
+msgstr ""
+
+#: extension.js:374 extension.js:627
+msgid "Choose target language"
+msgstr ""
+
+#: extension.js:419
+msgid "There is nothing to copy."
+msgstr ""
+
+#: extension.js:429
+msgid "Translated text copied to clipboard."
+msgstr ""
+
+#: extension.js:574 extension.js:594
+msgid "From"
+msgstr ""
+
+#: extension.js:580 extension.js:622
+msgid "To"
+msgstr ""
+
+#: extension.js:653
+msgid "Swap languages"
+msgstr ""
+
+#: extension.js:678
+msgid "Choose translation provider"
+msgstr ""
+
+#: extension.js:715
+msgid "Go!"
+msgstr ""
+
+#: extension.js:716
+msgid "Translate text(<Ctrl><Enter>)"
+msgstr ""
+
+#: extension.js:734
+msgid "Enable/Disable instant translation"
+msgstr ""
+
+#: extension.js:763
+msgid "Help"
+msgstr ""
+
+#: extension.js:797
+msgid "Quit"
+msgstr ""
+
+#: extension.js:809
+msgid "Translate"
+msgstr ""
+
+#: extension.js:824
+msgid "by"
+msgstr ""
+
+#: extension.js:862
+msgid "Translating..."
+msgstr ""
+
+#: extension.js:903
+msgid "Clipboard is empty."
+msgstr ""
+
+#: help_dialog.js:39 help_dialog.js:41 help_dialog.js:43 help_dialog.js:53
+msgid "Super"
+msgstr ""
+
+#: help_dialog.js:40
+msgid "open translator dialog"
+msgstr ""
+
+#: help_dialog.js:42
+msgid "open translator dialog and translate text from clipboard"
+msgstr ""
+
+#: help_dialog.js:43
+msgid "Alt"
+msgstr ""
+
+#: help_dialog.js:44
+msgid "open translator dialog and translate from primary selection"
+msgstr ""
+
+#: help_dialog.js:45 help_dialog.js:47 help_dialog.js:49 help_dialog.js:51
+msgid "Ctrl"
+msgstr ""
+
+#: help_dialog.js:45
+msgid "Enter"
+msgstr ""
+
+#: help_dialog.js:46
+msgid "Translate text"
+msgstr ""
+
+#: help_dialog.js:47
+msgid "Shift"
+msgstr ""
+
+#: help_dialog.js:48
+msgid "copy translated text to clipboard"
+msgstr ""
+
+#: help_dialog.js:50
+msgid "swap languages"
+msgstr ""
+
+#: help_dialog.js:52
+msgid "reset languages to default"
+msgstr ""
+
+#: help_dialog.js:53
+msgid "Escape"
+msgstr ""
+
+#: help_dialog.js:54
+msgid "close dialog"
+msgstr ""
+
+#: translation_provider_base.js:16
+msgid "Detect language"
+msgstr ""
+
+#: translation_provider_base.js:17
+msgid "Afrikaans"
+msgstr ""
+
+#: translation_provider_base.js:18
+msgid "Arabic"
+msgstr ""
+
+#: translation_provider_base.js:19
+msgid "Azerbaijani"
+msgstr ""
+
+#: translation_provider_base.js:20
+msgid "Belarusian"
+msgstr ""
+
+#: translation_provider_base.js:21
+msgid "Bulgarian"
+msgstr ""
+
+#: translation_provider_base.js:22
+msgid "Bengali"
+msgstr ""
+
+#: translation_provider_base.js:23
+msgid "Catalan"
+msgstr ""
+
+#: translation_provider_base.js:24
+msgid "Czech"
+msgstr ""
+
+#: translation_provider_base.js:25
+msgid "Welsh"
+msgstr ""
+
+#: translation_provider_base.js:26
+msgid "Danish"
+msgstr ""
+
+#: translation_provider_base.js:27
+msgid "German"
+msgstr ""
+
+#: translation_provider_base.js:28
+msgid "Greek"
+msgstr ""
+
+#: translation_provider_base.js:29
+msgid "English"
+msgstr ""
+
+#: translation_provider_base.js:30
+msgid "Spanish"
+msgstr ""
+
+#: translation_provider_base.js:31
+msgid "Estonian"
+msgstr ""
+
+#: translation_provider_base.js:32
+msgid "Basque"
+msgstr ""
+
+#: translation_provider_base.js:33
+msgid "Persian"
+msgstr ""
+
+#: translation_provider_base.js:34
+msgid "Finnish"
+msgstr ""
+
+#: translation_provider_base.js:35
+msgid "French"
+msgstr ""
+
+#: translation_provider_base.js:36
+msgid "Irish"
+msgstr ""
+
+#: translation_provider_base.js:37
+msgid "Galician"
+msgstr ""
+
+#: translation_provider_base.js:38
+msgid "Gujarati"
+msgstr ""
+
+#: translation_provider_base.js:39
+msgid "Hindi"
+msgstr ""
+
+#: translation_provider_base.js:40
+msgid "Croatian"
+msgstr ""
+
+#: translation_provider_base.js:41
+msgid "HaitianCreole"
+msgstr ""
+
+#: translation_provider_base.js:42
+msgid "Hungarian"
+msgstr ""
+
+#: translation_provider_base.js:43
+msgid "Armenian"
+msgstr ""
+
+#: translation_provider_base.js:44
+msgid "Indonesian"
+msgstr ""
+
+#: translation_provider_base.js:45
+msgid "Icelandic"
+msgstr ""
+
+#: translation_provider_base.js:46
+msgid "Italian"
+msgstr ""
+
+#: translation_provider_base.js:47
+msgid "Hebrew"
+msgstr ""
+
+#: translation_provider_base.js:48
+msgid "Japanese"
+msgstr ""
+
+#: translation_provider_base.js:49
+msgid "Georgian"
+msgstr ""
+
+#: translation_provider_base.js:50
+msgid "Kannada"
+msgstr ""
+
+#: translation_provider_base.js:51
+msgid "Korean"
+msgstr ""
+
+#: translation_provider_base.js:52
+msgid "Latin"
+msgstr ""
+
+#: translation_provider_base.js:53
+msgid "Lao"
+msgstr ""
+
+#: translation_provider_base.js:54
+msgid "Lithuanian"
+msgstr ""
+
+#: translation_provider_base.js:55
+msgid "Latvian"
+msgstr ""
+
+#: translation_provider_base.js:56
+msgid "Macedonian"
+msgstr ""
+
+#: translation_provider_base.js:57
+msgid "Malay"
+msgstr ""
+
+#: translation_provider_base.js:58
+msgid "Maltese"
+msgstr ""
+
+#: translation_provider_base.js:59
+msgid "Dutch"
+msgstr ""
+
+#: translation_provider_base.js:60
+msgid "Norwegian"
+msgstr ""
+
+#: translation_provider_base.js:61
+msgid "Polish"
+msgstr ""
+
+#: translation_provider_base.js:62
+msgid "Portuguese"
+msgstr ""
+
+#: translation_provider_base.js:63
+msgid "Romanian"
+msgstr ""
+
+#: translation_provider_base.js:64
+msgid "Russian"
+msgstr ""
+
+#: translation_provider_base.js:65
+msgid "Slovak"
+msgstr ""
+
+#: translation_provider_base.js:66
+msgid "Slovenian"
+msgstr ""
+
+#: translation_provider_base.js:67
+msgid "Albanian"
+msgstr ""
+
+#: translation_provider_base.js:68
+msgid "Serbian"
+msgstr ""
+
+#: translation_provider_base.js:69
+msgid "Swedish"
+msgstr ""
+
+#: translation_provider_base.js:70
+msgid "Swahili"
+msgstr ""
+
+#: translation_provider_base.js:71
+msgid "Tamil"
+msgstr ""
+
+#: translation_provider_base.js:72
+msgid "Telugu"
+msgstr ""
+
+#: translation_provider_base.js:73
+msgid "Thai"
+msgstr ""
+
+#: translation_provider_base.js:74
+msgid "Filipino"
+msgstr ""
+
+#: translation_provider_base.js:75
+msgid "Turkish"
+msgstr ""
+
+#: translation_provider_base.js:76
+msgid "Ukrainian"
+msgstr ""
+
+#: translation_provider_base.js:77
+msgid "Urdu"
+msgstr ""
+
+#: translation_provider_base.js:78
+msgid "Vietnamese"
+msgstr ""
+
+#: translation_provider_base.js:79
+msgid "Yiddish"
+msgstr ""
+
+#: translation_provider_base.js:80
+msgid "Chinese Simplified"
+msgstr ""
+
+#: translation_provider_base.js:81
+msgid "Chinese Traditional"
+msgstr ""
+
+#: language_chooser.js:76
+msgid "Type to search..."
+msgstr ""

@@ -9,6 +9,9 @@ const Me = ExtensionUtils.getCurrentExtension();
 const Utils = Me.imports.utils;
 const PrefsKeys = Me.imports.prefs_keys;
 
+const Gettext = imports.gettext.domain('text_translator');
+const _ = Gettext.gettext;
+
 const HelpDialog = new Lang.Class({
     Name: 'HelpDialog',
     Extends: ModalDialog.ModalDialog,
@@ -31,16 +34,23 @@ const HelpDialog = new Lang.Class({
         this._label.clutter_text.set_line_wrap(true);
 
         let markup =
-            "<span size='x-large'>Shortcuts:</span>\n" +
-            "<b>&lt;Super&gt;T</b> - open translator dialog.\n" +
-            "<b>&lt;Super&gt;&lt;Shift&gt;T</b> - open translator dialog and " +
-            "translate text from clipboard.\n" +
-            "<b>&lt;Super&gt;&lt;Alt&gt;T</b> - open translator dialog and translate " +
-            "from primary selection.\n<b>&lt;Ctrl&gt;&lt;Enter&gt;</b> - " +
-            "Translate text.\n<b>&lt;Ctrl&gt;&lt;Shift&gt;C</b> - copy translated " +
-            "text to clipboard.\n<b>&lt;Ctrl&gt;S</b> - swap languages.\n" +
-            "<b>&lt;Ctrl&gt;D</b> - reset languages to default.\n" +
-            "<b>&lt;Escape&gt;, &lt;Super&gt;</b> - close dialog";
+            "<span size='x-large'>" + _("Shortcuts") + ":</span>" +
+            "\n<b>&lt;" + _("Super") + "&gt;T</b> - " + 
+	    _("open translator dialog") +
+            "\n<b>&lt;" + _("Super") + "&gt;&lt;T</b> - " +
+	    _("open translator dialog and translate text from clipboard") +
+            "\n<b>&lt;" + _("Super") + "&gt;&lt;" + _("Alt") + "&gt;T</b> - " + 
+	    _("open translator dialog and translate from primary selection") +
+	    "\n<b>&lt;" + _("Ctrl") + "&gt;&lt;" + _("Enter") + "&gt;</b> - " +
+            _("Translate text") +
+	    "\n<b>&lt;" + _("Ctrl") + "&gt;&lt;" + _("Shift") + "&gt;C</b> - " + 
+	    _("copy translated text to clipboard") + 
+	    "\n<b>&lt;" + _("Ctrl") + "&gt;S</b> - " +
+	    _("swap languages") + 
+	    "\n<b>&lt;" + _("Ctrl") + "&gt;D</b> - " + 
+	    _("reset languages to default") + 
+	    "\n<b>&lt;" + _("Escape") + "&gt;, &lt;" + _("Super") + "&gt;</b> - " +
+	    _("close dialog");
         this._label.clutter_text.set_markup(markup);
 
         this._close_button = this._get_close_button();
