@@ -915,9 +915,9 @@ const TranslatorExtension = new Lang.Class({
             PrefsKeys.OPEN_TRANSLATOR_KEY,
             Utils.SETTINGS,
             Meta.KeyBindingFlags.NONE,
-            Shell.KeyBindingMode.NORMAL |
-            Shell.KeyBindingMode.MESSAGE_TRAY |
-            Shell.KeyBindingMode.OVERVIEW,
+            Shell.ActionMode.NORMAL |
+            Shell.ActionMode.MESSAGE_TRAY |
+            Shell.ActionMode.OVERVIEW,
             Lang.bind(this, function() {
                 this.open();
             })
@@ -927,9 +927,9 @@ const TranslatorExtension = new Lang.Class({
             PrefsKeys.TRANSLATE_FROM_CLIPBOARD_KEY,
             Utils.SETTINGS,
             Meta.KeyBindingFlags.NONE,
-            Shell.KeyBindingMode.NORMAL |
-            Shell.KeyBindingMode.MESSAGE_TRAY |
-            Shell.KeyBindingMode.OVERVIEW,
+            Shell.ActionMode.NORMAL |
+            Shell.ActionMode.MESSAGE_TRAY |
+            Shell.ActionMode.OVERVIEW,
             Lang.bind(this, function() {
                 this._translate_from_clipboard(St.ClipboardType.CLIPBOARD);
             })
@@ -939,9 +939,9 @@ const TranslatorExtension = new Lang.Class({
             PrefsKeys.TRANSLATE_FROM_SELECTION_KEY,
             Utils.SETTINGS,
             Meta.KeyBindingFlags.NONE,
-            Shell.KeyBindingMode.NORMAL |
-            Shell.KeyBindingMode.MESSAGE_TRAY |
-            Shell.KeyBindingMode.OVERVIEW,
+            Shell.ActionMode.NORMAL |
+            Shell.ActionMode.MESSAGE_TRAY |
+            Shell.ActionMode.OVERVIEW,
             Lang.bind(this, function() {
                 this._translate_from_clipboard(St.ClipboardType.PRIMARY);
             })

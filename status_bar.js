@@ -1,4 +1,5 @@
 const St = imports.gi.St;
+const Gio = imports.gi.Gio;
 const Lang = imports.lang;
 const Animation = imports.ui.animation;
 const Tweener = imports.ui.tweener;
@@ -83,8 +84,10 @@ const StatusBar = new Lang.Class({
         });
         this._message_label = new St.Label();
         this._message_label.get_clutter_text().use_markup = true;
+
+        let spinner_icon = Gio.File.new_for_uri('resource:///org/gnome/shell/theme/process-working.svg');
         this._spinner = new Animation.AnimatedIcon(
-            global.datadir + '/theme/process-working.svg',
+            spinner_icon,
             24
         );
 
