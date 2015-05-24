@@ -1,37 +1,35 @@
 const St = imports.gi.St;
 const Lang = imports.lang;
-const Pango = imports.gi.Pango;
-const Clutter = imports.gi.Clutter;
-
+ 
 const Extension = imports.misc.extensionUtils.get_text_translator_extension();
 const TranslationProviderBase = Extension.imports.translation_provider_base;
 const Utils = Extension.imports.utils;
-
+ 
 const NAME = 'Google.Translate';
 const URL =
-    'https://translate.google.com/translate_a/t?' +
-    'client=j&ie=UTF-8&oe=UTF-8&sl=%s&tl=%s&text=%s';
+    //'https://translate.google.com/translate_a/single?client=j&ie=UTF-8&oe=UTF-8&sl=%s&tl=%s&q=%s';
+    "https://translate.google.pl/translate_a/single?client=t&sl=%s&tl=%s&hl=pl&dt=bd&dt=ex&dt=ld&dt=md&dt=qca&dt=rw&dt=rm&dt=ss&dt=t&dt=at&ie=UTF-8&oe=UTF-8&otf=1&ssel=0&tsel=0&tk=519262|835597&q=%s";
 const LIMIT = 1400;
 const MAX_QUERIES = 3;
-
+ 
 const SENTENCES_REGEXP = /\n|([^\r\n.!?]+([.!?]+|\n|$))/gim;
-
+ 
 const DictionaryEntry = new Lang.Class({
     Name: "DictionaryEntry",
-
+ 
     _init: function(word, reverse_translations) {
         this.word = word;
         this.reverse_translations = reverse_translations || [];
-
+ 
         this.actor = new St.Table({
             homogeneous: false
         });
-
+ 
         this.word_label = new St.Label();
         this.word_label.clutter_text.set_markup(
             "<span font-size='small'>   %s        </span>".format(this.word)
         );
-
+ 
         let reverse_markup =
             "<span font-size='small' font-style='italic' " +
             "color='#C4C4C4'>%s</span>".format(
@@ -39,7 +37,7 @@ const DictionaryEntry = new Lang.Class({
             );
         this.reverse_translations_label = new St.Label();
         this.reverse_translations_label.clutter_text.set_markup(reverse_markup);
-
+ 
         this.actor.add(this.word_label, {
             row: 0,
             col: 0,
@@ -62,22 +60,22 @@ const DictionaryEntry = new Lang.Class({
         });
     },
 });
-
+ 
 const DictionaryPOS = new Lang.Class({
     Name: "DictionaryPOS",
-
+ 
     _init: function(pos, word) {
         this.actor = new St.Table({
             homogeneous: false
         });
-
+ 
         let markup =
             "<span font-weight='bold' font-size='medium'>%s</span>".format(word) +
             " - <span font-size='medium' font-style='italic' " +
             "color='#C4C4C4'>%s</span>".format(pos);
         this._pos_label = new St.Label();
         this._pos_label.clutter_text.set_markup(markup);
-
+ 
         this.actor.add(this._pos_label, {
             row: 0,
             col: 0,
@@ -87,7 +85,7 @@ const DictionaryPOS = new Lang.Class({
             y_align: St.Align.MIDDLE
         });
     },
-
+ 
     add_entry: function(dictionary_entry) {
         this.actor.add(dictionary_entry.actor, {
             row: this.actor.row_count,
@@ -101,14 +99,14 @@ const DictionaryPOS = new Lang.Class({
         });
     },
 });
-
+ 
 const Dictionary = new Lang.Class({
     Name: "Dictionary",
-
+ 
     _init: function(word, dict_data) {
         this._word = word;
         this._data = dict_data;
-
+ 
         this._box = new St.BoxLayout({
             vertical: true
         });
@@ -121,38 +119,39 @@ const Dictionary = new Lang.Class({
             opacity: 0
         });
         this.actor.add_actor(this._scroll);
-
+ 
+        // this._markup_dict(this._data);
         this._show_terms(this._word, this._data);
     },
-
+ 
     _show_terms: function(word, dict_data) {
         for(let i = 0; i < dict_data.length; i++) {
-            let pos = dict_data[i].pos;
-            let terms = dict_data[i].terms;
-            let entry = dict_data[i].entry;
-
+            let pos = dict_data[i][0];//.pos;
+            let terms = dict_data[i][1];//.terms;
+            let entry = dict_data[i][2];//.entry;
+ 
             if(Utils.is_blank(pos)) continue;
-
+ 
             let dictionary_pos = new DictionaryPOS(pos, word);
-
+ 
             for(let k = 0; k < entry.length; k++) {
                 let dictionary_entry = new DictionaryEntry(
-                    entry[k].word,
-                    entry[k].reverse_translation
+                    entry[k][0],//.word
+                    entry[k][1]//.reverse_translation
                 )
                 dictionary_pos.add_entry(dictionary_entry);
             }
-
+ 
             this._box.add(dictionary_pos.actor, {
                 expand: true
             });
         }
     },
-
+ 
     show: function() {
         const Tweener = imports.ui.tweener;
         this.actor.opacity = 0;
-
+ 
         Tweener.removeTweens(this.actor);
         Tweener.addTween(this.actor, {
             opacity: 255,
@@ -160,7 +159,7 @@ const Dictionary = new Lang.Class({
             transition: 'easeOutQuad'
         });
     },
-
+ 
     hide: function(destroy) {
         const Tweener = imports.ui.tweener;
         Tweener.removeTweens(this.actor);
@@ -173,184 +172,31 @@ const Dictionary = new Lang.Class({
             })
         });
     },
-
+ 
     set_size: function(width, height) {
         this._scroll.width = width;
         this._scroll.height = height;
     },
-
+ 
     destroy: function() {
         this.actor.destroy();
         this._data = null;
     }
 });
-
-const TranslitButton = new Lang.Class({
-    Name: 'TranslitButton',
-
-    _init: function() {
-        this.actor = new St.Button({
-            style_class: 'listen-button'
-        });
-        this._icon = new St.Icon({
-            icon_name: 'format-text-direction-ltr-symbolic',
-            icon_size: 15
-        });
-
-        this.actor.add_actor(this._icon);
-    },
-
-    show: function() {
-        this.actor.show();
-    },
-
-    hide: function() {
-        this.actor.hide();
-    },
-
-    destroy: function() {
-        this.actor.destroy();
-    }
-});
-
-const TranslitBox = new Lang.Class({
-    Name: 'TranslitBox',
-
-    _init: function() {
-        this.actor = new St.BoxLayout({
-            vertical: true
-        });
-
-        let text_box = new St.BoxLayout({
-            vertical: true
-        });
-        this._translit_label = new St.Label();
-        this._translit_label.clutter_text.set_line_wrap(true);
-        this._translit_label.clutter_text.set_ellipsize(Pango.EllipsizeMode.NONE);
-        text_box.add_child(this._translit_label);
-
-        let scroll = new St.ScrollView();
-        scroll.add_actor(text_box);
-
-        this.actor.add_child(scroll);
-    },
-
-    show: function() {
-        this.actor.show();
-    },
-
-    hide: function() {
-        this.actor.hide();
-    },
-
-    destroy: function() {
-        this.actor.destroy();
-    },
-
-    set_size: function(width, height) {
-        this.actor.width = width;
-        this.actor.height = height;
-    },
-
-    set text(text) {
-        this._translit_label.set_text(text);
-    },
-
-    get shown() {
-        return this.actor.visible;
-    }
-});
-
+ 
 const Translator = new Lang.Class({
     Name: 'GoogleTranslate',
     Extends: TranslationProviderBase.TranslationProviderBase,
-
+ 
     _init: function(extension_object) {
         this.parent(NAME, LIMIT*MAX_QUERIES, URL);
         this._results = [];
-        this._translit = '';
-        this._translit_box = null;
         this._extension_object = extension_object;
-
-        if(this._extension_object) {
-            this._translit_button = new TranslitButton();
-            this._translit_button.actor.connect(
-                'clicked',
-                Lang.bind(this, this._on_translit_button)
-            );
-            this._translit_button.hide();
-            this._extension_object._dialog._table.add(this._translit_button.actor, {
-                row: 3,
-                col: 1,
-                x_align: St.Align.START,
-                y_align: St.Align.MIDDLE,
-                x_fill: false,
-                y_fill: false
-            });
-            this._translit_button.actor.translation_x = 25;
-
-            this._tab_connection_id =
-                this._extension_object._dialog.dialog_layout.connect(
-                    'key-press-event',
-                    Lang.bind(this, function(object, event) {
-                        let symbol = event.get_key_symbol();
-
-                        if(symbol === Clutter.Tab) {
-                            this._on_translit_button();
-                            return true;
-                        }
-
-                        return false;
-                    })
-                );
-        }
     },
-
-    _on_translit_button: function() {
-        if(this._translit_box) this._hide_translit();
-        else this._show_translit();
-    },
-
-    _show_translit: function() {
-        if(this._dict) {
-            this._dict.hide();
-        }
-        this._extension_object._dialog.target.actor.hide();
-
-        this._translit_box = new TranslitBox();
-        this._translit_box.text = this._translit;
-        this._translit_box.set_size(
-            this._extension_object._dialog.target.actor.width,
-            this._extension_object._dialog.target.actor.height
-        );
-        this._extension_object._dialog._table.add(this._translit_box.actor, {
-            row: 2,
-            col: 1,
-            x_fill: false,
-            y_fill: false,
-            y_align: St.Align.END,
-            x_align: St.Align.MIDDLE
-        });
-        this._translit_box.show();
-    },
-
-    _hide_translit: function() {
-        this._extension_object._dialog.target.actor.show();
-
-        if(this._translit_box) {
-            this._translit_box.hide();
-            this._translit_box.destroy();
-            this._translit_box = null;
-        }
-
-        if(this._dict) {
-            this._dict.show();
-        }
-    },
-
+ 
     _show_dict: function(word, json_data) {
         this._hide_dict();
-
+ 
         this._dict = new Dictionary(word, json_data);
         this._dict.set_size(
             this._extension_object._dialog.target.actor.width,
@@ -366,30 +212,31 @@ const Translator = new Lang.Class({
         });
         this._dict.show();
     },
-
+ 
     _hide_dict: function() {
         if(this._dict) {
             this._dict.hide(true);
         }
     },
-
+ 
     _split_text: function(text) {
         let sentences = text.match(SENTENCES_REGEXP);
-
+ 
         if(sentences == null) {
             return false;
         }
-
+ 
         let temp = '';
         let result = [];
-
+ 
         for(let i = 0; i < sentences.length; i++) {
             let sentence = sentences[i];
+            
             if(Utils.is_blank(sentence)) {
                 temp += '\n';
                 continue;
             }
-
+            
             if(sentence.length + temp.length > LIMIT) {
                 result.push(temp);
                 temp = sentence;
@@ -399,28 +246,40 @@ const Translator = new Lang.Class({
                 if(i == (sentences.length - 1)) result.push(temp);
             }
         }
-
+ 
         return result;
     },
-
+ 
     get_pairs: function(language) {
         let temp = {};
-
+ 
         for(let key in TranslationProviderBase.LANGUAGES_LIST) {
             if(key === 'auto') continue;
-
+ 
             temp[key] = TranslationProviderBase.LANGUAGES_LIST[key];
         }
-
+ 
         return temp;
     },
-
+ 
     parse_response: function(response_data) {
         let json;
         let result = '';
-
+    let test,test2,test3;
         try {
-            json = JSON.parse(response_data);
+        test=response_data;
+        test2=test;
+        let reps=[['[,','[null,'],[',,',',null,'],[',]',',null]']];
+        for(let i = 0; i<reps.length;i++)
+        {
+        test='';
+        while(test!=test2)
+        {
+            test=test2;
+            test2=test.replace(reps[i][0],reps[i][1]);
+        }
+        }
+            json = JSON.parse(test);
         }
         catch(e) {
             log('%s Error: %s'.format(
@@ -429,46 +288,42 @@ const Translator = new Lang.Class({
             ));
             return {
                 error: true,
-                message: "Can't translate text, please try later."
+                message: JSON.stringify(e, null, '\t')+" "+response_data
             };
         }
-
-        if(json.dict != undefined) {
-            this._show_dict(json.sentences[0].orig, json.dict);
-        }
-        else {
-            this._hide_dict();
-        }
-
-        for(let i = 0; i < json.sentences.length; i++) {
-            if(json.sentences[i].translit) {
-                this._translit += json.sentences[i].translit + ' ';
+        try
+        {
+           
+            if(json.dict != undefined) {
+                //this._show_dict(json.sentences[0].orig, json.dict);
+                this._show_dict(json[0][0][0], json[1]);
             }
-            result += json.sentences[i].trans;
+            else {
+                this._hide_dict();
+            }
+     
+            for(let i = 0; i < json[0].length; i++) {
+                if (json[0][i][0] == null) continue;
+                result += json[0][i][0];
+            }
+        }
+        catch (e)
+        {
+            return "wyjatek: "+JSON.stringify(e,null,"\t");
         }
         result = Utils.escape_html(result);
-
-        if(!Utils.is_blank(this._translit)) {
-            this._translit_button.show();
-        }
-        else {
-            this._translit_button.hide();
-        }
-
+        
         return result;
     },
-
+ 
     translate: function(source_lang, target_lang, text, callback) {
-        this._translit = '';
-        this._hide_translit();
-
         if(Utils.is_blank(text)) {
             callback(false);
             return;
         }
-
+ 
         let splitted = this._split_text(text);
-
+ 
         if(!splitted || splitted.length === 1) {
             if(splitted) text = splitted[0];
             let url = this.make_url(source_lang, target_lang, text);
@@ -496,24 +351,4 @@ const Translator = new Lang.Class({
             });
         }
     },
-
-    destroy: function() {
-        this._translit_button.destroy();
-
-        if(this._dict) this._dict.destroy();
-        if(this._translit_box) this._translit_box.destroy();
-
-        if(this._tab_connection_id > 0) {
-            this._extension_object._dialog.dialog_layout.disconnect(
-                this._tab_connection_id
-            );
-            this._tab_connection_id = 0;
-        }
-
-        this._translit_box = null;
-        this._translit = '';
-        this._extension_object = null;
-
-        this.parent();
-    }
 });
