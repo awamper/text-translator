@@ -1,19 +1,20 @@
 const St = imports.gi.St;
+const Clutter = imports.gi.Clutter;
 const Lang = imports.lang;
- 
+
 const Extension = imports.misc.extensionUtils.get_text_translator_extension();
 const TranslationProviderBase = Extension.imports.translation_provider_base;
 const Utils = Extension.imports.utils;
- 
+
 const NAME = 'Google.Translate';
 const URL =
     //'https://translate.google.com/translate_a/single?client=j&ie=UTF-8&oe=UTF-8&sl=%s&tl=%s&q=%s';
     "https://translate.google.pl/translate_a/single?client=t&sl=%s&tl=%s&hl=pl&dt=bd&dt=ex&dt=ld&dt=md&dt=qca&dt=rw&dt=rm&dt=ss&dt=t&dt=at&ie=UTF-8&oe=UTF-8&otf=1&ssel=0&tsel=0&tk=519262|835597&q=%s";
 const LIMIT = 1400;
 const MAX_QUERIES = 3;
- 
+
 const SENTENCES_REGEXP = /\n|([^\r\n.!?]+([.!?]+|\n|$))/gim;
- 
+
 const DictionaryEntry = new Lang.Class({
     Name: "DictionaryEntry",
  
@@ -21,8 +22,11 @@ const DictionaryEntry = new Lang.Class({
         this.word = word;
         this.reverse_translations = reverse_translations || [];
  
-        this.actor = new St.Table({
-            homogeneous: false
+        this._grid_layout = new Clutter.GridLayout({
+            orientation: Clutter.Orientation.VERTICAL
+        });
+        this.actor = new St.Widget({
+            layout_manager: this._grid_layout
         });
  
         this.word_label = new St.Label();
@@ -38,35 +42,17 @@ const DictionaryEntry = new Lang.Class({
         this.reverse_translations_label = new St.Label();
         this.reverse_translations_label.clutter_text.set_markup(reverse_markup);
  
-        this.actor.add(this.word_label, {
-            row: 0,
-            col: 0,
-            x_align: St.Align.START,
-            y_align: St.Align.START,
-            x_fill: false,
-            x_expand: false,
-            y_fill: false,
-            y_expand: false
-        });
-        this.actor.add(this.reverse_translations_label, {
-            row: 0,
-            col: 1,
-            x_align: St.Align.START,
-            y_align: St.Align.START,
-            x_fill: false,
-            x_expand: false,
-            y_fill: false,
-            y_expand: false
-        });
+        this._grid_layout.attach(this.word_label, 0, 0, 1, 1);
+        this._grid_layout.attach(this.reverse_translations_label, 1, 0, 1, 1);
     },
 });
- 
+
 const DictionaryPOS = new Lang.Class({
     Name: "DictionaryPOS",
  
     _init: function(pos, word) {
-        this.actor = new St.Table({
-            homogeneous: false
+        this.actor = new St.BoxLayout({
+            vertical: true
         });
  
         let markup =
@@ -76,20 +62,11 @@ const DictionaryPOS = new Lang.Class({
         this._pos_label = new St.Label();
         this._pos_label.clutter_text.set_markup(markup);
  
-        this.actor.add(this._pos_label, {
-            row: 0,
-            col: 0,
-            y_expand: false,
-            x_expand: false,
-            x_align: St.Align.START,
-            y_align: St.Align.MIDDLE
-        });
+        this.actor.add(this._pos_label);
     },
  
     add_entry: function(dictionary_entry) {
         this.actor.add(dictionary_entry.actor, {
-            row: this.actor.row_count,
-            col: 0,
             x_fill: false,
             x_expand: false,
             y_fill: false,
@@ -99,7 +76,7 @@ const DictionaryPOS = new Lang.Class({
         });
     },
 });
- 
+
 const Dictionary = new Lang.Class({
     Name: "Dictionary",
  
@@ -147,7 +124,7 @@ const Dictionary = new Lang.Class({
             });
         }
     },
- 
+
     show: function() {
         const Tweener = imports.ui.tweener;
         this.actor.opacity = 0;
@@ -159,7 +136,7 @@ const Dictionary = new Lang.Class({
             transition: 'easeOutQuad'
         });
     },
- 
+
     hide: function(destroy) {
         const Tweener = imports.ui.tweener;
         Tweener.removeTweens(this.actor);
@@ -172,28 +149,28 @@ const Dictionary = new Lang.Class({
             })
         });
     },
- 
+
     set_size: function(width, height) {
         this._scroll.width = width;
         this._scroll.height = height;
     },
- 
+
     destroy: function() {
         this.actor.destroy();
         this._data = null;
     }
 });
- 
+
 const Translator = new Lang.Class({
     Name: 'GoogleTranslate',
     Extends: TranslationProviderBase.TranslationProviderBase,
- 
+
     _init: function(extension_object) {
         this.parent(NAME, LIMIT*MAX_QUERIES, URL);
         this._results = [];
         this._extension_object = extension_object;
     },
- 
+
     _show_dict: function(word, json_data) {
         this._hide_dict();
  
@@ -212,26 +189,26 @@ const Translator = new Lang.Class({
         });
         this._dict.show();
     },
- 
+
     _hide_dict: function() {
         if(this._dict) {
             this._dict.hide(true);
         }
     },
- 
+
     _split_text: function(text) {
         let sentences = text.match(SENTENCES_REGEXP);
  
         if(sentences == null) {
             return false;
         }
- 
+
         let temp = '';
         let result = [];
- 
+
         for(let i = 0; i < sentences.length; i++) {
             let sentence = sentences[i];
-            
+
             if(Utils.is_blank(sentence)) {
                 temp += '\n';
                 continue;
@@ -246,22 +223,22 @@ const Translator = new Lang.Class({
                 if(i == (sentences.length - 1)) result.push(temp);
             }
         }
- 
+
         return result;
     },
- 
+
     get_pairs: function(language) {
         let temp = {};
- 
+
         for(let key in TranslationProviderBase.LANGUAGES_LIST) {
             if(key === 'auto') continue;
- 
+
             temp[key] = TranslationProviderBase.LANGUAGES_LIST[key];
         }
- 
+
         return temp;
     },
- 
+
     parse_response: function(response_data) {
         let json;
         let result = '';
@@ -312,18 +289,18 @@ const Translator = new Lang.Class({
             return "wyjatek: "+JSON.stringify(e,null,"\t");
         }
         result = Utils.escape_html(result);
-        
+
         return result;
     },
- 
+
     translate: function(source_lang, target_lang, text, callback) {
         if(Utils.is_blank(text)) {
             callback(false);
             return;
         }
- 
+
         let splitted = this._split_text(text);
- 
+
         if(!splitted || splitted.length === 1) {
             if(splitted) text = splitted[0];
             let url = this.make_url(source_lang, target_lang, text);

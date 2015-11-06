@@ -88,7 +88,7 @@ const StatusBar = new Lang.Class({
         let spinner_icon = Gio.File.new_for_uri('resource:///org/gnome/shell/theme/process-working.svg');
         this._spinner = new Animation.AnimatedIcon(
             spinner_icon,
-            24
+            16
         );
 
         this.actor.add(this._spinner.actor);

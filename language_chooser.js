@@ -28,7 +28,12 @@ const LanguageChooser = new Lang.Class({
         ));
         this._dialogLayout.set_style_class_name('translator-language-chooser');
 
-        this._languages_table = new St.Table();
+        this._languages_grid_layout = new Clutter.GridLayout({
+            orientation: Clutter.Orientation.VERTICAL
+        });
+        this._languages_table = new St.Widget({
+            layout_manager: this._languages_grid_layout
+        });
 
         this._box = new St.BoxLayout({
             vertical: true
@@ -42,12 +47,16 @@ const LanguageChooser = new Lang.Class({
 
         this._title = new St.Label({
             text: title,
-            style_class: 'translator-language-chooser-title'
+            style_class: 'translator-language-chooser-title',
+            x_expand: true,
+            y_expand: false
         });
 
         this._search_entry = new St.Entry({
             style_class: 'translator-language-chooser-entry',
-            visible: false
+            visible: false,
+            x_expand: false,
+            y_expand: false
         });
         this._search_entry.connect('key-press-event', Lang.bind(this, function(o, e) {
             let symbol = e.get_key_symbol();
@@ -69,50 +78,25 @@ const LanguageChooser = new Lang.Class({
         );
 
         this._info_label = new St.Label({
-            text: '<span color="black"><i>Type to search...</i></span>'
+            text: '<span color="black"><i>Type to search...</i></span>',
+            x_expand: false,
+            y_expand: false
         });
         this._info_label.clutter_text.set_use_markup(true);
 
         this._close_button = this._get_close_button();
 
-        this._table = new St.Table({
-            homogeneous: false
+        this._grid_layout = new Clutter.GridLayout({
+            orientation: Clutter.Orientation.VERTICAL
         });
-        this._table.add(this._title, {
-            row: 0,
-            col: 0
+        this._table = new St.Widget({
+            layout_manager: this._grid_layout
         });
-        this._table.add(this._close_button, {
-            row: 0,
-            col: 1,
-            x_fill: false,
-            x_align: St.Align.END
-        });
-        this._table.add(this._scroll, {
-            row: 1,
-            col: 0,
-            col_span: 2,
-            y_fill: false,
-            y_align: St.Align.START
-        });
-        this._table.add(this._search_entry, {
-            row: 2,
-            col: 0,
-            col_span: 2,
-            y_fill: false,
-            x_fill: false,
-            y_align: St.Align.END,
-            x_align: St.Align.END
-        });
-        this._table.add(this._info_label, {
-            row: 2,
-            col: 0,
-            col_span: 2,
-            y_fill: false,
-            x_fill: false,
-            y_align: St.Align.END,
-            x_align: St.Align.END
-        });
+        this._grid_layout.attach(this._title, 0, 0, 1, 1);
+        this._grid_layout.attach(this._close_button, 1, 0, 1, 1);
+        this._grid_layout.attach(this._scroll, 0, 1, 2, 1);
+        this._grid_layout.attach(this._search_entry, 0, 2, 1, 2);
+        this._grid_layout.attach(this._info_label, 0, 2, 1, 2);
 
         this.set_languages(languages);
 
@@ -163,7 +147,13 @@ const LanguageChooser = new Lang.Class({
         });
 
         let button = new St.Button({
-            reactive: true
+            reactive: true,
+            x_expand: false,
+            y_expand: false,
+            x_fill: false,
+            y_fill: false,
+            x_align: St.Align.END,
+            y_align: St.Align.MIDDLE
         });
         button.connect('clicked', Lang.bind(this, function() {
             this.close();
@@ -178,7 +168,11 @@ const LanguageChooser = new Lang.Class({
             label: '%s'.format(lang_name),
             track_hover: true,
             reactive: true,
-            style_class: 'translator-language-chooser-button'
+            style_class: 'translator-language-chooser-button',
+            x_fill: false,
+            y_fill: false,
+            x_expand: true,
+            y_expand: false
         });
         button.connect('clicked', Lang.bind(this, function() {
             this.emit('language-chose', {
@@ -239,12 +233,7 @@ const LanguageChooser = new Lang.Class({
                 button.set_reactive(false);
             }
 
-            this._languages_table.add(button, {
-                row: row,
-                col: column,
-                x_fill: false,
-                x_align: St.Align.START
-            });
+            this._languages_grid_layout.attach(button, column, row, 1, 1);
 
             if(column === (COLUMNS - 1)) {
                 column = 0;

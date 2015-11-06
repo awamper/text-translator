@@ -32,7 +32,11 @@ const EntryBase = new Lang.Class({
         });
 
         this.actor = new St.BoxLayout({
-            reactive: true
+            reactive: true,
+            x_expand: true,
+            y_expand: true,
+            x_align: St.Align.END,
+            y_align: St.Align.MIDDLE
         });
         this.actor.connect('button-press-event',
             Lang.bind(this, function() {
@@ -266,7 +270,13 @@ const ListenButton = new Lang.Class({
 
     _init: function() {
         this.actor = new St.Button({
-            style_class: 'listen-button'
+            style_class: 'listen-button',
+            x_expand: false,
+            y_expand: false,
+            x_fill: false,
+            y_fill: false,
+            x_align: St.Align.START,
+            y_align: St.Align.MIDDLE
         });
         this._icon = new St.Icon({
             icon_name: Utils.ICONS.listen,
@@ -333,11 +343,21 @@ const TranslatorDialog = new Lang.Class({
         this._topbar = new ButtonsBar.ButtonsBar({
             style_class: 'translator-top-bar-box'
         });
+        this._topbar.actor.x_expand = true;
+        this._topbar.actor.x_align = St.Align.MIDDLE;
+
         this._dialog_menu = new ButtonsBar.ButtonsBar();
+        this._dialog_menu.actor.x_expand = true;
+        this._dialog_menu.actor.y_expand = true;
+        this._dialog_menu.actor.x_align = St.Align.END;
+        this._dialog_menu.actor.y_align = St.Align.MIDDLE;
+
         this._statusbar = new StatusBar.StatusBar();
+        this._statusbar.actor.x_align = St.Align.END;
         this._most_used_bar = false;
 
         this._chars_counter = new CharsCounter.CharsCounter();
+        // this._chars_counter.
 
         this._google_tts = new GoogleTTS.GoogleTTS();
         this._listen_source_button = new ListenButton();
@@ -359,59 +379,22 @@ const TranslatorDialog = new Lang.Class({
                 )
             }))
 
-        this._table = new St.Table({
-            homogeneous: false
+        this._grid_layout = new Clutter.GridLayout({
+            orientation: Clutter.Orientation.VERTICAL
         });
-        this._table.add(this._topbar.actor, {
-            row: 0,
-            col: 0,
-            col_span: 2
+        this._table = new St.Widget({
+            layout_manager: this._grid_layout
         });
-        this._table.add(this._dialog_menu.actor, {
-            row: 0,
-            col: 1,
-            expand: false,
-            x_fill: false,
-            y_fill: false,
-            x_align: St.Align.END,
-            y_align: St.Align.START
-        });
-        this._table.add(this._source.actor, {
-            row: 2,
-            col: 0,
-            x_fill: false
-        });
-        this._table.add(this._target.actor, {
-            row: 2,
-            col: 1,
-            x_fill: false
-        });
-        this._table.add(this._chars_counter.actor, {
-            row: 3,
-            col: 0,
-            x_align: St.Align.END,
-            x_fill: false
-        });
-        this._table.add(this._listen_source_button.actor, {
-            row: 3,
-            col: 0,
-            x_align: St.Align.START,
-            x_fill: false
-        });
-        this._table.add(this._listen_target_button.actor, {
-            row: 3,
-            col: 1,
-            x_align: St.Align.START,
-            x_fill: false
-        });
-        this._table.add(this._statusbar.actor, {
-            row: 3,
-            col: 1,
-            x_fill: false,
-            x_align: St.Align.END
-        });
+        this._grid_layout.attach(this._topbar.actor, 0, 0, 2, 1);
+        this._grid_layout.attach(this._dialog_menu.actor, 1, 0, 1, 1);
+        this._grid_layout.attach(this._source.actor, 0, 2, 1, 1);
+        this._grid_layout.attach(this._target.actor, 1, 2, 1, 1);
+        // this._grid_layout.attach(this._listen_source_button.actor, 0, 3, 1, 1);
+        this._grid_layout.attach(this._chars_counter.actor, 0, 3, 1, 1);
+        // this._grid_layout.attach(this._listen_target_button.actor, 2, 3, 1, 1);
+        this._grid_layout.attach(this._statusbar.actor, 1, 3, 1, 1);
 
-        this.contentLayout.add_actor(this._table);
+        this.contentLayout.add_child(this._table);
 
         this._init_most_used_bar();
         this._init_scroll_sync();
@@ -471,18 +454,8 @@ const TranslatorDialog = new Lang.Class({
         }
 
         this._topbar.actor.set_style("padding-bottom: 0px;");
-        this._table.add(this._most_used_sources.actor, {
-            row: 1,
-            col: 0,
-            x_fill: false,
-            x_align: St.Align.START
-        });
-        this._table.add(this._most_used_targets.actor, {
-            row: 1,
-            col: 1,
-            x_fill: false,
-            x_align: St.Align.START
-        });
+        this._grid_layout.attach(this._most_used_sources.actor, 0, 1, 1, 1);
+        this._grid_layout.attach(this._most_used_targets.actor, 1, 1, 1, 1);
     },
 
     _hide_most_used_bar: function() {
