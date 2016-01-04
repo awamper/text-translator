@@ -241,6 +241,7 @@ const TranslationProviderBase = new Lang.Class({
         let result = this._url.format(
             source_lang,
             target_lang,
+            source_lang,
             encodeURIComponent(text)
         );
         return result;

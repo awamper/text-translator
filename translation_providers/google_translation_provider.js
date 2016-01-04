@@ -9,7 +9,7 @@ const Utils = Extension.imports.utils;
 const NAME = 'Google.Translate';
 const URL =
     //'https://translate.google.com/translate_a/single?client=j&ie=UTF-8&oe=UTF-8&sl=%s&tl=%s&q=%s';
-    "https://translate.google.pl/translate_a/single?client=t&sl=%s&tl=%s&hl=pl&dt=bd&dt=ex&dt=ld&dt=md&dt=qca&dt=rw&dt=rm&dt=ss&dt=t&dt=at&ie=UTF-8&oe=UTF-8&otf=1&ssel=0&tsel=0&tk=519262|835597&q=%s";
+    "https://translate.google.com/translate_a/single?client=t&sl=%s&tl=%s&hl=%s&dt=bd&dt=ex&dt=ld&dt=md&dt=qca&dt=rw&dt=rm&dt=ss&dt=t&dt=at&ie=UTF-8&oe=UTF-8&otf=2&ssel=0&tsel=0&kc=5&tk=409973.26113&q=%s";
 const LIMIT = 1400;
 const MAX_QUERIES = 3;
 
