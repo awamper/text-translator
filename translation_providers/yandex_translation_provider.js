@@ -51,7 +51,9 @@ const LANGUAGE_PAIRS = [
     "it-uk",
     "tr-ru",
     "tr-en",
-    "tr-uk"
+    "tr-uk",
+    "en-hu",
+    "hu-en"
 ];
 
 const Translator = new Lang.Class({
