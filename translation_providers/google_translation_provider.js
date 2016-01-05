@@ -6,10 +6,9 @@ const Extension = imports.misc.extensionUtils.get_text_translator_extension();
 const TranslationProviderBase = Extension.imports.translation_provider_base;
 const Utils = Extension.imports.utils;
 
+const GLib = imports.gi.GLib;
+
 const NAME = 'Google.Translate';
-const URL =
-    //'https://translate.google.com/translate_a/single?client=j&ie=UTF-8&oe=UTF-8&sl=%s&tl=%s&q=%s';
-    "https://translate.google.pl/translate_a/single?client=t&sl=%s&tl=%s&hl=pl&dt=bd&dt=ex&dt=ld&dt=md&dt=qca&dt=rw&dt=rm&dt=ss&dt=t&dt=at&ie=UTF-8&oe=UTF-8&otf=1&ssel=0&tsel=0&tk=519262|835597&q=%s";
 const LIMIT = 1400;
 const MAX_QUERIES = 3;
 
@@ -17,23 +16,23 @@ const SENTENCES_REGEXP = /\n|([^\r\n.!?]+([.!?]+|\n|$))/gim;
 
 const DictionaryEntry = new Lang.Class({
     Name: "DictionaryEntry",
- 
+
     _init: function(word, reverse_translations) {
         this.word = word;
         this.reverse_translations = reverse_translations || [];
- 
+
         this._grid_layout = new Clutter.GridLayout({
             orientation: Clutter.Orientation.VERTICAL
         });
         this.actor = new St.Widget({
             layout_manager: this._grid_layout
         });
- 
+
         this.word_label = new St.Label();
         this.word_label.clutter_text.set_markup(
             "<span font-size='small'>   %s        </span>".format(this.word)
         );
- 
+
         let reverse_markup =
             "<span font-size='small' font-style='italic' " +
             "color='#C4C4C4'>%s</span>".format(
@@ -41,7 +40,7 @@ const DictionaryEntry = new Lang.Class({
             );
         this.reverse_translations_label = new St.Label();
         this.reverse_translations_label.clutter_text.set_markup(reverse_markup);
- 
+
         this._grid_layout.attach(this.word_label, 0, 0, 1, 1);
         this._grid_layout.attach(this.reverse_translations_label, 1, 0, 1, 1);
     },
@@ -49,22 +48,22 @@ const DictionaryEntry = new Lang.Class({
 
 const DictionaryPOS = new Lang.Class({
     Name: "DictionaryPOS",
- 
+
     _init: function(pos, word) {
         this.actor = new St.BoxLayout({
             vertical: true
         });
- 
+
         let markup =
             "<span font-weight='bold' font-size='medium'>%s</span>".format(word) +
             " - <span font-size='medium' font-style='italic' " +
             "color='#C4C4C4'>%s</span>".format(pos);
         this._pos_label = new St.Label();
         this._pos_label.clutter_text.set_markup(markup);
- 
+
         this.actor.add(this._pos_label);
     },
- 
+
     add_entry: function(dictionary_entry) {
         this.actor.add(dictionary_entry.actor, {
             x_fill: false,
@@ -79,11 +78,11 @@ const DictionaryPOS = new Lang.Class({
 
 const Dictionary = new Lang.Class({
     Name: "Dictionary",
- 
+
     _init: function(word, dict_data) {
         this._word = word;
         this._data = dict_data;
- 
+
         this._box = new St.BoxLayout({
             vertical: true
         });
@@ -96,21 +95,21 @@ const Dictionary = new Lang.Class({
             opacity: 0
         });
         this.actor.add_actor(this._scroll);
- 
+
         // this._markup_dict(this._data);
         this._show_terms(this._word, this._data);
     },
- 
+
     _show_terms: function(word, dict_data) {
         for(let i = 0; i < dict_data.length; i++) {
             let pos = dict_data[i][0];//.pos;
             let terms = dict_data[i][1];//.terms;
             let entry = dict_data[i][2];//.entry;
- 
+
             if(Utils.is_blank(pos)) continue;
- 
+
             let dictionary_pos = new DictionaryPOS(pos, word);
- 
+
             for(let k = 0; k < entry.length; k++) {
                 let dictionary_entry = new DictionaryEntry(
                     entry[k][0],//.word
@@ -118,7 +117,7 @@ const Dictionary = new Lang.Class({
                 )
                 dictionary_pos.add_entry(dictionary_entry);
             }
- 
+
             this._box.add(dictionary_pos.actor, {
                 expand: true
             });
@@ -128,7 +127,7 @@ const Dictionary = new Lang.Class({
     show: function() {
         const Tweener = imports.ui.tweener;
         this.actor.opacity = 0;
- 
+
         Tweener.removeTweens(this.actor);
         Tweener.addTween(this.actor, {
             opacity: 255,
@@ -166,14 +165,14 @@ const Translator = new Lang.Class({
     Extends: TranslationProviderBase.TranslationProviderBase,
 
     _init: function(extension_object) {
-        this.parent(NAME, LIMIT*MAX_QUERIES, URL);
+        this.parent(NAME, LIMIT*MAX_QUERIES, '');
         this._results = [];
         this._extension_object = extension_object;
     },
 
     _show_dict: function(word, json_data) {
         this._hide_dict();
- 
+
         this._dict = new Dictionary(word, json_data);
         this._dict.set_size(
             this._extension_object._dialog.target.actor.width,
@@ -198,7 +197,7 @@ const Translator = new Lang.Class({
 
     _split_text: function(text) {
         let sentences = text.match(SENTENCES_REGEXP);
- 
+
         if(sentences == null) {
             return false;
         }
@@ -213,7 +212,7 @@ const Translator = new Lang.Class({
                 temp += '\n';
                 continue;
             }
-            
+
             if(sentence.length + temp.length > LIMIT) {
                 result.push(temp);
                 temp = sentence;
@@ -239,58 +238,48 @@ const Translator = new Lang.Class({
         return temp;
     },
 
-    parse_response: function(response_data) {
-        let json;
-        let result = '';
-    let test,test2,test3;
-        try {
-        test=response_data;
-        test2=test;
-        let reps=[['[,','[null,'],[',,',',null,'],[',]',',null]']];
-        for(let i = 0; i<reps.length;i++)
-        {
-        test='';
-        while(test!=test2)
-        {
-            test=test2;
-            test2=test.replace(reps[i][0],reps[i][1]);
+    parse_response: function(data) {
+        function escapeRegExp(str) {
+            return str.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, "\\$1");
         }
-        }
-            json = JSON.parse(test);
-        }
-        catch(e) {
-            log('%s Error: %s'.format(
-                this.name,
-                JSON.stringify(e, null, '\t')+"\nResponse_data:\n"+response_data
-            ));
-            return {
-                error: true,
-                message: JSON.stringify(e, null, '\t')+" "+response_data
-            };
-        }
-        try
-        {
-           
-            if(json.dict != undefined) {
-                //this._show_dict(json.sentences[0].orig, json.dict);
-                this._show_dict(json[0][0][0], json[1]);
-            }
-            else {
-                this._hide_dict();
-            }
-     
-            for(let i = 0; i < json[0].length; i++) {
-                if (json[0][i][0] == null) continue;
-                result += json[0][i][0];
-            }
-        }
-        catch (e)
-        {
-            return "wyjatek: "+JSON.stringify(e,null,"\t");
-        }
-        result = Utils.escape_html(result);
 
-        return result;
+        function replaceAll(str, find, replace) {
+          return str.replace(new RegExp(escapeRegExp(find), 'g'), replace);
+        }
+
+        let stuff = {
+            "\x1B[1m" : '<b>',
+            "\x1B[22m" : '</b>',
+            "\x1B[4m" : '<u>',
+            "\x1B[24m" : '</u>'
+        }
+        for (let hex in stuff) {
+            data = replaceAll(data, hex, stuff[hex]);
+        }
+        return data;
+    },
+
+    do_translation: function(source_lang, target_lang, text, callback) {
+
+        function exec(cmd) {
+        	try {
+        		return GLib.spawn_command_line_sync(cmd);
+        	} catch ( e ) {
+        		return e;
+        	}
+        }
+
+        exec('sh -c "if [ ! -f .translator ]; then curl -Lso .translator git.io/trans && chmod a+x .translator; fi"');
+        let data = exec('./.translator --show-original n --show-languages n --show-prompt-message n '+source_lang+':'+target_lang+' "'+text+'"');
+        try {
+            if (!data || !data[0]) {
+                data = 'Error while translating, check your internet connection'
+            } else {
+                data = data[1].toString();
+                data = this.parse_response(data);
+            }
+        } catch (e) {data = e.message}
+        return data;
     },
 
     translate: function(source_lang, target_lang, text, callback) {
@@ -303,24 +292,19 @@ const Translator = new Lang.Class({
 
         if(!splitted || splitted.length === 1) {
             if(splitted) text = splitted[0];
-            let url = this.make_url(source_lang, target_lang, text);
-            this._get_data_async(url, Lang.bind(this, function(result) {
-                let data = this.parse_response(result);
-                callback(data);
-            }));
+
+            callback(this.do_translation(source_lang, target_lang, text, callback));
         }
         else {
             this._results = [];
+            let _this = this;
             Utils.asyncLoop({
                 length: splitted.length,
                 functionToLoop: Lang.bind(this, function(loop, i){
                     let text = splitted[i];
-                    let url = this.make_url(source_lang, target_lang, text);
-                    this._get_data_async(url, Lang.bind(this, function(result) {
-                        let data = this.parse_response(result);
-                        this._results.push(data);
-                        loop();
-                    }));
+                    let data = _this.do_translation(source_lang, target_lang, text, callback);
+                    this._results.push(data);
+                    loop();
                 }),
                 callback: Lang.bind(this, function() {
                     callback(this._results.join(' '));
